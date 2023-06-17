@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export log_dir=/wls/logs
+export log_dir=./logs
 export now_time=`date +%Y-%m-%d-%H-%M-%S`
 
 cd /app/
