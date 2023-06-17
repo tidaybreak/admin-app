@@ -1,0 +1,69 @@
+apiVersion: {{ apiversion }}
+kind: Deployment
+metadata:
+  name: {{ appname }}
+  labels:
+    app: {{ appname }}
+    version: {{ version }}-{{ date }}
+  namespace: {{ namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ appname }}
+      tier: app
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: {{ appname }}
+        tier: app
+      name: {{ appname }}
+    spec:
+      containers:
+      - name: {{ appname }}
+        image:  {{ registry }}/{{ appname }}:{{ version }}-{{ date }}
+        ports:
+        - containerPort: 8000
+        - containerPort: 8001
+        - containerPort: 9001
+        resources:
+          requests:
+            cpu: "500m"
+            memory: 500Mi
+          limits:
+            cpu: "1"
+            memory: 4Gi
+        env:
+          - name: APP_CONFIG
+            value: Docker
+          - name: TERM
+            value: linux
+          - name: C_FORCE_ROOT
+            value: "true"
+          - name: PYTHONIOENCODING
+            value: "UTF-8"
+          - name: PYTHONUNBUFFERED
+            value: "1"
+          - name: TERMINFO
+            value: /etc/terminfo
+        volumeMounts:
+        - mountPath: /wls/logs
+          name: cephfs-logs
+          subPath: {{ appname }}
+        livenessProbe:
+          httpGet:
+            path: /check
+            port: 8000
+          timeoutSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /check
+            port: 8000
+          timeoutSeconds: 20
+      nodeSelector:
+        type: prd
+      volumes:
+      - name: cephfs-logs
+        persistentVolumeClaim:
+          claimName: cephfs-logs

@@ -1,0 +1,752 @@
+{% macro input(object, setting) %}
+{% if setting.is_multi -%}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <ui-select ng-model="{[ object ]}" {[ ppover | safe if setting.popover ]}
+               theme="bootstrap"
+               {[ "required-multiple" if setting.is_required ]}
+    multiple
+    ng-disabled="disabled"
+    reset-search-input="true"
+    class="pull-left wt-{[ setting.width if setting.width else 250 ]}">
+    <ui-select-match allow-clear="true" placeholder="{[ setting.placeholder ]}">
+        {{$item}}
+    </ui-select-match>
+    <ui-select-choices repeat="e in [] | addFilter: $select.search">
+        <span ng-bind-html="e | highlight: $select.search | safe">
+        </span>
+    </ui-select-choices>
+    </ui-select>
+    <div class="clearfix">
+    </div>
+</div>
+{% else -%}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}" ng-init="{[ setting.init ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">p</span>' | safe if setting.is_primary ]}
+        {[ '<span class="text-danger">u</span>' | safe if setting.is_unique ]}
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <input {[ "num-format" if setting.input_type == 'Integer' or setting.input_type == 'Float' ]}
+    {[ "is-Int=true" if setting.input_type == 'Integer' ]}
+    type="{[ 'number' if setting.input_type == 'Integer' or setting.input_type == 'Float' else 'text' ]}"
+    {[ ppover | safe if setting.popover ]}
+    ng-init="{[ object ]} = {[ object ]} ? {[ object ]} : {[ setting.def_val if setting.def_val else object ]}"
+    ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}"
+    class="form-control pull-left wt-{[ setting.width if setting.width else 250 ]}"
+    {[ "required" if setting.is_required ]} ng-model="{[ object ]}" placeholder="{[ setting.placeholder ]}">
+    <div class="clearfix">
+    </div>
+</div>
+{% endif -%}
+{% endmacro %}
+
+
+{% macro normalfile(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}" ng-init="{[ setting.init ]}">
+    <div upload-file-to-func upload-addr="{[ setting.upload_addr ]}" btn-width="{[ setting.width ]}" multi="false" file-type="*" id="file_upload_func"
+         op="op"></div>
+</div>
+{% endmacro %}
+
+
+{% macro uploadfile(object, setting, id) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <div class="inline-block pull-left">
+        <button class="btn btn-default pull-left wt-50 file-clean-btn" data-ng-click="{[ object ]} = {[ setting.is_multi ]} ? [] : ''">
+            清空
+        </button>
+        <div id="{[ id ]}" upload-file class="form-control pull-left"
+             multi="{['true' if setting.is_multi else 'false' ]}" file-type="{[ setting.file_type | join(';') ]}"
+             ng-model="{[ object ]}"
+             btn-width="{[ setting.width ]}"
+             {[
+        "required" if setting.is_required ]}>
+    </div>
+    <div class="pull-left line-height-28" ng-bind-html="{[ object ]} | build_file"></div>
+</div>
+<div class="clearfix">
+</div>
+</div>
+{% endmacro %}
+
+
+{% macro textarea(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <textarea {[ ppover | safe if setting.popover ]} class="form-control pull-left"
+              cols="{[ setting.cols if setting.cols else 40 ]}"
+              rows="{[ setting.rows if setting.rows else 5 ]}"
+              ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}"
+              placeholder="{[ setting.placeholder ]}" data-ng-model="{[ object ]}" {["required" if
+    setting.is_required ]}>
+    </textarea>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro ueditor(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <textarea {[ ppover | safe if setting.popover ]} class="form-control pull-left"
+              cols="{[ setting.cols if setting.cols else 100 ]}"
+              rows="{[ setting.rows if setting.rows else 10 ]}"
+              ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}"
+              placeholder="{[ setting.placeholder ]}" data-ng-model="{[ object ]}" {["required" if
+    setting.is_required ]}>
+    </textarea>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro dropdown(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <ui-select ng-model="{[ object ]}" {[ ppover | safe if setting.popover ]}
+               theme="bootstrap"
+               ng-init="drop_items = makeDropdown('{[ setting.value if setting.value else '' ]}')"
+               ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}"
+               {[ 'multiple' if setting.is_multi ]}
+    ng-disabled="disabled"
+    reset-search-input="true"
+    size="32"
+    {[ "required" if setting.is_required and not setting.is_multi ]}
+    {[ "required-multiple" if setting.is_required and setting.is_multi ]}
+    search-enabled="true"
+    class="pull-left wt-{[ setting.width if setting.width else 250 ]}">
+    <ui-select-match allow-clear="true" placeholder="{[ setting.placeholder ]}">
+        {[ '{{$item}}' if setting.is_multi else '{{$select.selected}}' ]}
+    </ui-select-match>
+    <ui-select-choices refresh-delay="1"
+                       repeat="item in drop_items{[ ' | addFilter: $select.search' if setting.is_can_add else '' ]}">
+        <span ng-bind-html="item | safe"></span>
+    </ui-select-choices>
+    </ui-select>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro reference(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <ui-select ng-model="{[ object ]}" {[ ppover | safe if setting.popover ]}
+               ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}"
+               reset-search-input="true"
+               {[ "multiple" if setting.is_multi ]}
+    {[ "required" if setting.is_required and not setting.is_multi ]}
+    {[ "required-multiple" if setting.is_required and setting.is_multi ]}
+    search-enabled="true"
+    reset-search-input="true"
+    class="pull-left wt-{[ setting.width if setting.width else 250 ]}">
+    <ui-select-match allow-clear="true" placeholder="{[ setting.placeholder ]}">
+        {[ '{{$item}}' if setting.is_multi else '{{$select.selected}}' ]}
+    </ui-select-match>
+    <ui-select-choices
+      refresh="refreshReference('{[ setting.schema ]}', '{[ setting.reference_formatter ]}', '{[ setting.reference_filter ]}', $select.search, {% if setting.schema_var %}true{% else %}false{% endif %})"
+      refresh-delay="1"
+      repeat="ent in getReferSchema('{[ setting.schema ]}', {% if setting.schema_var %}true{% else %}false{% endif %}){[ ' | addFilter: $select.search' if setting.is_can_add else '' ]}">
+        <span ng-bind-html="ent | highlight: $select.search | safe"></span>
+        {#            <span compile ng-bind-html="ca(ent, getSchemaVarSchema('{[ setting.schema ]}', {% if setting.schema_var %}true{% else %}false{% endif %})) | safe"></span>#}
+    </ui-select-choices>
+    </ui-select>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro radio(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <div {[ ppover | safe if setting.popover ]}>
+        {% set items = setting.value.replace('\n', ',').split(',') -%}
+        {% for item_ in items %}
+        {% set value=item_.split('-') -%}
+        <div class="radio radio-inline margin-0">
+            <label>
+                <input type="radio" value="{[ value[1] if value[1] else value[0] ]}"
+                       data-ng-model="{[ object ]}" name="{[ setting.name ]}" {[ "required" if
+                setting.is_required ]}>
+                <span>
+                        {[ value[0] ]}
+                    </span>
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro datepicker(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}">
+    <label class="pull-left label-text" data-ng-if="{[ 'true' if setting.is_label else 'false' ]}">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <input type="text" datetimepicker format="{[ setting.format or 'yyyy-mm-dd hh:ii:ss' ]}"
+           vminview="{[ setting.minview ]}"
+           class="form-control inline-block pull-left wt-{[ setting.width if setting.width else 250 ]}"
+           {[ "required" if setting.is_required ]} ng-model="{[ object ]}" placeholder="{[
+    setting.placeholder
+    ]}" ng-disabled="{[ 'true' if setting.disable_edit else 'false' ]}">
+    <div class="clearfix"></div>
+</div>
+{% endmacro %}
+
+
+{% macro table(object, setting) %}
+<div class="{[ setting.style if setting.style else 'form-group-input' ]}" data-ng-if="{[ 'false' if setting.is_hidden else 'true' ]}" ng-init="{[ object ]}.{[ setting.name ]} = init_table({[ object ]}.{[ setting.name ]})">
+    <label class="pull-left label-text">
+        {[ '<span class="text-danger">*</span>' | safe if setting.is_required ]}
+        {% set ppover = ' tooltip="' + setting.popover + '" tooltip-placement="right" ' -%}
+        <span>{[ setting.lname ]}：</span>
+    </label>
+    <div style="float:left;max-width: 1400px;">
+        {% set front_input_obj = setting.front_input %}
+        {% if front_input_obj.table_front_input_type == "Input" %}
+        <input type="text" ng-model="{[ object ]}.{[ setting.name ]}[0]" class="form-control pull-left wt-{[ setting.width if setting.width else 250 ]}" value="{[ object ]}.{[ setting.name ]}[0]">
+        {% elif front_input_obj.table_front_input_type == "Dropdown" %}
+        {% if front_input_obj.table_front_input_define == "value" %}
+        {% if front_input_obj.table_front_input_value_format == "Str" %}
+        <ui-select ng-model="{[ object ]}.{[ setting.name ]}[0]" search-enabled="false"
+                   class="wt-180">
+            <ui-select-match placeholder="请选择">
+                {{$select.selected}}
+            </ui-select-match>
+            <ui-select-choices repeat="item in {[ front_input_obj.table_front_input_value ]}">
+                            <span ng-bind-html="item | safe">
+                            </span>
+            </ui-select-choices>
+        </ui-select>
+        {% elif front_input_obj.table_front_input_value_format == "Object" %}
+        <ui-select ng-model="{[ object ]}.{[ setting.name ]}[0]" search-enabled="false"
+                   class="wt-180" ng-init="table_front_input_value={[ front_input_obj.table_front_input_value ]}">
+            <!--这里不用ng-init 直接把数组写在repeat会报 "10 $digest() iterations reached. Aborting!" 错误 -->
+            <ui-select-match placeholder="请选择">
+                {{$select.selected.{[ front_input_obj.table_front_input_value_object_display_key ]}}}
+            </ui-select-match>
+            <ui-select-choices repeat="item.{[ front_input_obj.table_front_input_value_object_value_key ]} as item in table_front_input_value track by $index">
+                            <span ng-bind-html="item.{[ front_input_obj.table_front_input_value_object_display_key ]} | safe">
+                            </span>
+            </ui-select-choices>
+        </ui-select>
+        {% endif %}
+        {% elif front_input_obj.table_front_input_define == "request" %}
+        {% if front_input_obj.table_front_input_value_format == "Str" %}
+        <ui-select ng-model="{[ object ]}.{[ setting.name ]}[0]" search-enabled="false"
+                   class="wt-180" ng-init="fetchResource('{[ front_input_obj.table_front_input_request_api ]}', 'table_front_input_value', '{[ front_input_obj.table_front_input_response_formatter ]}')">
+            <ui-select-match placeholder="请选择">
+                {{$select.selected}}
+            </ui-select-match>
+            <ui-select-choices repeat="item in table_front_input_value track by $index">
+                                    <span ng-bind-html="item | safe">
+                                    </span>
+            </ui-select-choices>
+        </ui-select>
+        {% elif front_input_obj.table_front_input_value_format == "Object" %}
+        <ui-select ng-model="{[ object ]}.{[ setting.name ]}[0]" search-enabled="false"
+                   class="wt-180" ng-init="fetchResource('{[ front_input_obj.table_front_input_request_api ]}', 'table_front_input_value', '{[ front_input_obj.table_front_input_response_formatter ]}')">
+            <!--这里不用ng-init 直接把数组写在repeat会报 "10 $digest() iterations reached. Aborting!" 错误 -->
+            <ui-select-match placeholder="请选择">
+                {{$select.selected.{[ front_input_obj.table_front_input_value_object_display_key ]}}}
+            </ui-select-match>
+            <ui-select-choices repeat="item.{[ front_input_obj.table_front_input_value_object_value_key ]} as item in table_front_input_value track by $index">
+                                    <span ng-bind-html="item.{[ front_input_obj.table_front_input_value_object_display_key ]} | safe">
+                                    </span>
+            </ui-select-choices>
+        </ui-select>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
+        <br>
+        <table ng-if="{[ 'false' if setting.is_hidden_table else 'true' ]}" class="table table-bordered angularTable" style="float:left !important;">
+            <tbody>
+            <tr style="background: #3c8dbc;color: #ffffff;">
+                <th style="padding:3px;font-size:12px;">序号</th>
+                <!--<th ng-repeat="item in {[ setting.table_head ]}" style="padding:3px;font-size:12px;">{{ item }}</th> -->
+                {% for item in setting.form.inputs["items"] %}
+                <th style="padding:3px;font-size:12px;">{[ item.lname ]}</th>
+                {% endfor %}
+                <th style="padding:3px;font-size:12px;width:100px;">操作 <a ng-if="{[ object ]}.{[ setting.name ]} == undefined || {[ object ]}.{[ setting.name ]}[1] == undefined || {[ object ]}.{[ setting.name ]}[1].length <= 0" ng-click="{[ object ]}.{[ setting.name ]} = ['', [[]]]">点击添加</a> </th>
+            </tr>
+            <tr ng-repeat="t_item in {[ object ]}.{[ setting.name ]}[1] track by $index" ng-init="item_index = $index">
+                <td style="text-align: center;">{{ item_index + 1 }}</td>
+                {% for item in setting.form.inputs["items"] %}
+                <td>
+                    <!--<td ng-repeat="val in {[ setting.table_head ]}" ng-init="val_index = $index">-->
+                    <!-- <input type="text" ng-model="item[val_index]" class="form-control" value="{{ item[val_index] }}"> -->
+                    {% set t_item_obj = 't_item[' + item.table_idx|string + ']' %}
+                    {% if item.type == "Reference" %}
+                    {[ reference(t_item_obj, item) ]}
+                    {% elif item.type == "DropDown" %}
+                    {[ dropdown(t_item_obj, item) ]}
+                    {% elif item.type == "MultiDrop" %}
+                    {[ multidrop(t_item_obj, item) ]}
+                    {% elif item.type == "Input" %}
+                    {[ input(t_item_obj, item) ]}
+                    {% elif item.type == "Radio" %}
+                    {[ radio(t_item_obj, item) ]}
+                    {% elif item.type == "Date" %}
+                    {[ datepicker(t_item_obj, item) ]}
+                    {% elif item.type == "Textarea" %}
+                    {[ textarea(t_item_obj, item) ]}
+                    {% elif item.type == "UploadFile" %}
+                    {% set id = setting.name + item.name + item.table_idx|string %}
+                    {[ uploadfile(t_item_obj, item, id) ]}
+                    {% elif item.type == "Ueditor" %}
+                    {[ ueditor(t_item_obj, item) ]}
+                    {% elif item.type == "NormalFile" %}
+                    {[ normalfile(t_item_obj, item) ]}
+                    {% endif %}
+
+                </td>
+                {% endfor %}
+                <td>
+                    <a ng-click="{[ object ]}.{[ setting.name ]}[1].splice($index, 1)">移除</a>
+                    <a ng-click="{[ object ]}.{[ setting.name ]}[1].splice($index, 0, [])">增加</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="clearfix">
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro render_form(form) %}
+<div class="refund-info padding-left-0">
+    {% if form.inputs %}
+    <div class="simple-chart-body-inner input-container">
+        <div class="margin-bottom-10">
+            <span ng-init="init_object('{[form.object]}')"></span>
+            <form class="form-horizontal" role="form" name="{[ form.name ]}_form" novalidate=""
+                  ng-init="{[ form.init if form.init else '' ]}">
+                <tabset>
+                    {% for tag_inputs in form.inputs -%}
+                    <tab heading="{[ tag_inputs[0] ]}" select="">
+                        <div class="row">
+                            <div class="col-md-12 margin-top-3 padding-left-20">
+                                {% for item in tag_inputs[1]["inputs"] %}
+                                {% set object = form.object + '.' + item.name %}
+                                {% if item.type == "Reference" %}
+                                {[ reference(object, item) ]}
+                                {% elif item.type == "DropDown" %}
+                                {[ dropdown(object, item) ]}
+                                {% elif item.type == "MultiDrop" %}
+                                {[ multidrop(object, item) ]}
+                                {% elif item.type == "Input" %}
+                                {[ input(object, item) ]}
+                                {% elif item.type == "Radio" %}
+                                {[ radio(object, item) ]}
+                                {% elif item.type == "Date" %}
+                                {[ datepicker(object, item) ]}
+                                {% elif item.type == "Table" %}
+                                {[ table(form.object, item) ]}
+                                {% elif item.type == "Textarea" %}
+                                {[ textarea(object, item) ]}
+                                {% elif item.type == "UploadFile" %}
+                                {[ uploadfile(object, item, item.name) ]}
+                                {% elif item.type == "Ueditor" %}
+                                {[ ueditor(object, item) ]}
+                                {% elif item.type == "NormalFile" %}
+                                {[ normalfile(object, item) ]}
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </tab>
+                    {% endfor %}
+                </tabset>
+                <div class="form-group-input">
+                    <button class="btn btn-primary margin-top-1"
+                            data-ng-disabled="{[ form.name ]}_form.$invalid"
+                            data-ng-click="operate_entity('提交')">
+                        保 存
+                    </button>
+                    <button class="btn btn-default margin-top-1 padding-left-10" data-ng-click="cancel_save()">
+                        取 消
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro curr_month_change() %}
+<div class="col-md-3 col-sm-6 spacing-bottom-sm spacing-bottom">
+    <div class="tiles blue added-margin">
+        <div class="tiles-body">
+            <div class="controller">
+                <a href="javascript:;" class="reload"></a>
+                <a href="javascript:;" class="remove"></a>
+            </div>
+            <div class="tiles-title">
+                本月变更配置项数量
+            </div>
+            <div class="heading">
+                <span class="animate-number" data-value="4" data-animation-duration="100">{{ data.curr }}</span>次
+            </div>
+            <div class="description"><i class="fa fa-twitter mr-5"></i><span class="text-white mini-description">比上个月高 {{ data.rate }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro today_query() %}
+<div class="col-md-3 col-sm-6 spacing-bottom-sm spacing-bottom" id="tiles02">
+    <div class="tiles blue added-margin">
+        <div class="tiles-body">
+            <div class="controller">
+                <a href="javascript:;" class="reload"></a>
+                <a href="javascript:;" class="remove"></a>
+            </div>
+            <div class="tiles-title">
+                今日用户查询数量
+            </div>
+            <div class="heading">
+                <span class="animate-number" data-value="0" data-animation-duration="100">{{ data.curr }}</span>次
+            </div>
+            <div class="description"><i class="fa fa-twitter mr-5"></i> <span class="text-white mini-description">比上昨天高 {{ data.rate }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro curr_day_query_speed() %}
+<div class="col-md-4 col-sm-6 spacing-bottom" id="tiles03">
+    <div class="tiles blue added-margin">
+        <div class="tiles-body">
+            <div class="controller">
+                <a href="javascript:;" class="reload"></a>
+                <a href="javascript:;" class="remove"></a>
+            </div>
+            <div class="tiles-title">
+                今日用户查询平均响应速度
+            </div>
+            <div class="heading">
+                <span class="animate-number" data-value="0" data-animation-duration="10">{{ data.avg }}</span>MS
+            </div>
+            <div class="description"><i class="fa fa-twitter mr-5"></i><span class="text-white mini-description ">耗时最长:{{ data.max }}ms，耗时最短:{{ data.min }}ms</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro jq_pool_sum() %}
+<div class="tile-more-content col-md-2 col-sm-6 spacing-bottom no-padding">
+    <div class="tiles blue">
+        <div class="tiles-body">
+            <div class="heading">
+                金桥机房资源池
+            </div>
+            <p>机器总数量：<span class="total">{{ data.sum || 0 }}</span>台
+            </p>
+            <div class="tiles-pool-list-color no-radius">
+                <ul>
+                    <li><span class="label label-sm label-icon label-darkcyan">online</span></li>
+                    <li><span class="label label-sm label-icon label-darkgray">init</span></li>
+                    <li><span class="label label-sm label-icon label-gray">offline</span></li>
+                </ul>
+            </div>
+            <p></p>
+        </div>
+    </div>
+    <div class="tiles-body">
+        <ul class="progress-list">
+            <li ng-repeat="item in data.item">
+                <div class="details-wrapper">
+                    <div class="name">{{ item.key }}</div>
+                    <div class="description">{{ item.desc }}</div>
+                </div>
+                <div class="details-status pull-right">
+                    <span class="animate-number" data-value="0" data-animation-duration="1">{{ item.sum }}台</span>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tiles-pool-list no-radius">
+                    <ul>
+                        <li><span class="label label-sm label-icon label-darkcyan" title="online">{{ item.sub_item.online || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-darkgray" title="init">{{ item.sub_item.init || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-gray" title="offline">{{ item.sub_item.offline || 0 }}台</span>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro yp_pool_sum() %}
+<div class="tile-more-content col-md-2 col-sm-6 spacing-bottom no-padding">
+    <div class="tiles blue">
+        <div class="tiles-body">
+            <div class="heading">
+                杨浦机房资源池
+            </div>
+            <p>机器总数量：<span class="total">{{ data.sum || 0 }}</span>台
+            </p>
+            <div class="tiles-pool-list-color no-radius">
+                <ul>
+                    <li><span class="label label-sm label-icon label-darkcyan">online</span></li>
+                    <li><span class="label label-sm label-icon label-darkgray">init</span></li>
+                    <li><span class="label label-sm label-icon label-gray">offline</span></li>
+                </ul>
+            </div>
+            <p></p>
+        </div>
+    </div>
+    <div class="tiles-body">
+        <ul class="progress-list">
+            <li ng-repeat="item in data.item">
+                <div class="details-wrapper">
+                    <div class="name">{{ item.key }}</div>
+                    <div class="description">{{ item.desc }}</div>
+                </div>
+                <div class="details-status pull-right">
+                    <span class="animate-number" data-value="0" data-animation-duration="1">{{ item.sum }}台</span>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tiles-pool-list no-radius">
+                    <ul>
+                        <li><span class="label label-sm label-icon label-darkcyan" title="online">{{ item.sub_item.online || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-darkgray" title="init">{{ item.sub_item.init || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-gray" title="offline">{{ item.sub_item.offline || 0 }}台</span>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro prd_pool_sum() %}
+<div class="tile-more-content col-md-2 col-sm-6 spacing-bottom no-padding">
+    <div class="tiles blue">
+        <div class="tiles-body">
+            <div class="heading">
+                子系统资源统计
+            </div>
+            <p>应用/IP：<span class="total">{{ data.app_sum || 0 }}</span>/<span
+              class="total">{{ data.rs_sum || 0 }}</span>个
+            </p>
+            <div class="tiles-pool-list-color no-radius">
+                <ul>
+                    <li><span class="label label-sm label-icon label-darkcyan"> 子系统 </span></li>
+                    <li><span class="label label-sm label-icon label-darkgray"> IP数量 </span></li>
+                </ul>
+            </div>
+            <p></p>
+        </div>
+    </div>
+    <div class="tiles-body">
+        <ul class="progress-list">
+            <li ng-repeat="item in data.item">
+                <div class="details-wrapper">
+                    <div class="name pull-left mr-10">{{ item.key }}</div>
+                    <div class="description pull-left">{{ item.desc }}</div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tiles-pool-list no-radius">
+                    <ul>
+                        <li class="p-50"><span class="label label-sm label-icon label-darkcyan" title="online">{{ item.sub_item.app || 0 }}个</span>
+                        </li>
+                        <li class="p-50"><span class="label label-sm label-icon label-darkgray" title="offline">{{ item.sub_item.rs || 0 }}个</span>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro all_pool_area() %}
+<div class="tile-more-content col-md-2 col-sm-6 spacing-bottom no-padding">
+    <div class="tiles blue">
+        <div class="tiles-body">
+            <div class="heading">
+                资源池按区域统计
+            </div>
+            <p>机器总数量：<span class="total">{{ data.sum || 0 }}</span>台
+            </p>
+            <div class="tiles-pool-list-color no-radius">
+                <ul>
+                    <li><span class="label label-sm label-icon label-darkcyan">online</span></li>
+                    <li><span class="label label-sm label-icon label-darkgray">init</span></li>
+                    <li><span class="label label-sm label-icon label-gray">offline</span></li>
+                </ul>
+            </div>
+            <p></p>
+        </div>
+    </div>
+    <div class="tiles-body">
+        <ul class="progress-list">
+            <li ng-repeat="item in data.item">
+                <div class="details-wrapper">
+                    <div class="name">{{ item.key }}</div>
+                    <div class="description">{{ item.desc }}</div>
+                </div>
+                <div class="details-status pull-right">
+                    <span class="animate-number" data-value="0" data-animation-duration="1">{{ item.sum }}台</span>
+                </div>
+                <div class="clearfix"></div>
+                <div class="tiles-pool-list no-radius">
+                    <ul>
+                        <li><span class="label label-sm label-icon label-darkcyan" title="online">{{ item.sub_item.online || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-darkgray" title="init">{{ item.sub_item.init || 0 }}台</span>
+                        </li>
+                        <li><span class="label label-sm label-icon label-gray" title="offline">{{ item.sub_item.offline || 0 }}台</span>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro render_operate_form(form) %}
+{% if form.inputs %}
+<div class="simple-chart-body-inner input-container">
+    <div class="margin-bottom-10">
+        <form class="form-horizontal" role="form" name="{[ form.inputs.name ]}_form" novalidate="">
+            <div class="row padding-10-20">
+                {% if form.inputs["desc"] %}
+                <span class="alert alert-success margin-top-1 padding-4 margin-left-3 inline-block"><i
+                  class="fa fa-exclamation-circle"></i> <span ng-bind-html="op.description|safe"></span></span>
+                {% endif %}
+                <div class="col-md-12 margin-top-3 padding-bottom-20">
+                    {% for item in form.inputs["items"] %}
+                    {% set object = form.inputs.name + '.' + item.name %}
+                    {% if item.type == "Reference" %}
+                    {[ reference(object, item) ]}
+                    {% elif item.type == "DropDown" %}
+                    {[ dropdown(object, item) ]}
+                    {% elif item.type == "MultiDrop" %}
+                    {[ multidrop(object, item) ]}
+                    {% elif item.type == "Input" %}
+                    {[ input(object, item) ]}
+                    {% elif item.type == "Radio" %}
+                    {[ radio(object, item) ]}
+                    {% elif item.type == "Date" %}
+                    {[ datepicker(object, item) ]}
+                    {% elif item.type == "Textarea" %}
+                    {[ textarea(object, item) ]}
+                    {% elif item.type == "UploadFile" %}
+                    {[ uploadfile(object, item, item.name) ]}
+                    {% elif item.type == "Ueditor" %}
+                    {[ ueditor(object, item) ]}
+                    {% elif item.type == "NormalFile" %}
+                    {[ normalfile(object, item) ]}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro render_entity_search_form(form) %}
+{% if form.inputs %}
+<div class="pull-left search-item">
+    {% for tag_inputs in form.inputs -%}
+    <div>
+        {% for item in tag_inputs[1]["inputs"] %}
+        {% set object = 'search_attrs.' + item.name %}
+        {% if item.type == "Reference" %}
+        {[ reference(object, item) ]}
+        {% elif item.type == "DropDown" %}
+        {[ dropdown(object, item) ]}
+        {% elif item.type == "MultiDrop" %}
+        {[ multidrop(object, item) ]}
+        {% elif item.type == "Input" %}
+        {[ input(object, item) ]}
+        {% elif item.type == "Radio" %}
+        {[ radio(object, item) ]}
+        {% elif item.type == "Date" %}
+        {[ datepicker(object, item) ]}
+        {% elif item.type == "Table" %}
+        {[ table(form.object, item) ]}
+        {% elif item.type == "Textarea" %}
+        {[ textarea(object, item) ]}
+        {% elif item.type == "UploadFile" %}
+        {[ uploadfile(object, item, item.name) ]}
+        {% elif item.type == "Ueditor" %}
+        {[ ueditor(object, item) ]}
+        {% elif item.type == "NormalFile" %}
+        {[ normalfile(object, item) ]}
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
