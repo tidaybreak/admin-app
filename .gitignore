@@ -9,6 +9,11 @@
 *.tar
 *.zip
 .idea
+celerybeat.pid
+celerybeat-schedule
+flower
+supervisord.pid
+supervisor.sock
 logs/
 __pycache__/
 .python-version
@@ -24,7 +29,6 @@ venv/
 site-packages/
 bower_components/
 npm-debug.log
-celerybeat-schedule
 wheelhouse/
 .lprof
 celerybeat-schedule.*
