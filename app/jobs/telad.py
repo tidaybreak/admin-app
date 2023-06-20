@@ -15,7 +15,10 @@ from app.utils.ciopaas.ciopaas import hm_data
 
 @celery.task
 def crm_list(date=None):
-    data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804')
+    start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
+    end = (datetime.now()).strftime("%Y-%m-%d 00:00:00")
+    data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804',
+                   start=start, end=end)
     print(len(data))
     for k, v in data.items():
         for k2, v2 in v.items():

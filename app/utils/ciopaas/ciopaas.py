@@ -109,12 +109,14 @@ def crm_list(host, api_access_id, api_access_secret,
     return response.json()
 
 
-def crm_list_all(host, api_access_id, api_access_secret):
+def crm_list_all(host, api_access_id, api_access_secret,
+                 start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
+                 end=(datetime.now()).strftime("%Y-%m-%d 00:00:00")):
     page = 0
     pageIndex = 5000
     data = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
-                    start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
-                    end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"))
+                    start=start,
+                    end=end)
     result = data["data"]["list"]
     total = data["data"]["total"]
     print(total, page)
@@ -135,8 +137,8 @@ def crm_list_all(host, api_access_id, api_access_secret):
     return result
 
 
-def hm_data(host, api_access_id, api_access_secret):
-    data = crm_list_all(host, api_access_id, api_access_secret)
+def hm_data(host, api_access_id, api_access_secret, start, end):
+    data = crm_list_all(host, api_access_id, api_access_secret, start, end)
     date_hm = dict()
     for ent in data:
         day = ent["created_at"][:10]
