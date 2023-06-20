@@ -4,6 +4,9 @@ WORKDIR /app
 
 #RUN addgroup -S app && adduser -S -G app app
 
+RUN apk add -U tzdata
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
 RUN pip install --upgrade pip
 RUN sed -i 's/https/http/' /etc/apk/repositories
 RUN apk --no-cache add gcc musl-dev libffi libffi-dev

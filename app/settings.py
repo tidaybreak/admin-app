@@ -5,6 +5,7 @@ import sys
 import time
 import logging
 import traceback
+import  decimal
 from flask import Flask
 from requests import session as Session
 from .ext import init_ext
@@ -22,6 +23,8 @@ class JSONEncoder(json.JSONEncoder):
             return o.strftime("%Y-%m-%d")
         if isinstance(o, datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
+        if isinstance(o, decimal.Decimal):
+            return float(o)
         return json.JSONEncoder.default(self, o)
 
 

@@ -10,13 +10,10 @@ class ReportService(BaseService):
     def __init__(self):
         super(ReportService, self).__init__()
 
-    def find_by_username(self, username=""):
+    def get_report(self, page=1, limit=None):
         query_dict = {
             "filter": {
-                "username": "{username}".format(username=username)
             }
         }
-        data = super().fetch_list(query_dict=query_dict, to_dict=False)
-        if data["total"] == 0:
-            return None
-        return data['items'][0]
+        data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_dict=True)
+        return data

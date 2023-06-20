@@ -101,6 +101,7 @@ def crm_list(host, api_access_id, api_access_secret,
         "mark": "",
         "status_search": "status"
     }
+    print(session)
     data.update(session)
 
     url = 'https://'+host+'/api/crmList'
@@ -111,7 +112,6 @@ def crm_list(host, api_access_id, api_access_secret,
 def crm_list_all(host, api_access_id, api_access_secret):
     page = 0
     pageIndex = 5000
-    print(session)
     data = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
                     start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
                     end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"))
