@@ -20,27 +20,26 @@ view.before_request(Jwt.load_api)
 
 
 @view.route('/query', methods=['GET'])
-def authenticate_info():
-    query_dict = {
-        'id': 2
-    }
-    update_dict = {
-        'agent_name': 'xx'
-                  }
+def query():
 
-    data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804')
-    print(len(data))
-    for k, v in data.items():
-        for k2, v2 in v.items():
-            query_dict = {
-                'date': k,
-                'agent_name': k2
-            }
-            serv.report.update(query_dict, v2, insert=True)
-            #serv.report.update()
+    # data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804')
+    # print(len(data))
+    # for k, v in data.items():
+    #     for k2, v2 in v.items():
+    #         query_dict = {
+    #             'date': k,
+    #             'agent_name': k2
+    #         }
+    #         serv.report.update(query_dict, v2, insert=True)
+    #         #serv.report.update()
 
-    query = Jwt.payload()
-    result = {
+    #sess = Jwt.payload()
+
+    args = request.args
+    query_dict = json.loads(args.get("search", '{}', str))
+    result = serv.report.get_report(query_dict, page=args.get("page", 1, int), limit=args.get("limit", 1, int))
+
+    result2 = {
         "total": 2,
         "items": [
             {

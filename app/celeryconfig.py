@@ -56,7 +56,7 @@ worker_proc_alive_timeout = 15
 beat_schedule = {
     "报表": {
         "task": "app.jobs.telad.crm_list",
-        "schedule": crontab(minute="50", hour="10"),
+        "schedule": crontab(minute="0", hour="1"),
         "options": {
             "queue": "default",
             "link": signature(

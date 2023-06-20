@@ -11,7 +11,14 @@ class MReport(Report):
         表格字段属性
         :return:
         """
-        return {}
+        return {
+            "id": {
+                "sort": 'custom'
+            },
+            "date": {
+                "sort": 'custom'
+            }
+        }
 
     def dict(self, exclude=None):
         """

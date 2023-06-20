@@ -41,6 +41,7 @@ class BaseService(object):
         columns_info = mod.columns_info()
         self.columns = reflection.Inspector.from_engine(engine).get_columns(table_name)
         for idx, val in enumerate(self.columns):
+            self.columns[idx]['id'] = idx
             if val['name'] in columns_info:
                 self.columns[idx] = {**self.columns[idx], **columns_info[val['name']]}
 
@@ -100,10 +101,12 @@ class BaseService(object):
             },
             "sort" : {
                 "firstname" : {
-                    "order": "asc"
+                    "order": "asc",
+                    "idx": 0
                 },
                 "age" : {
-                    "order": "desc"
+                    "order": "desc",
+                    "idx": 1
                 }
             }
         }
