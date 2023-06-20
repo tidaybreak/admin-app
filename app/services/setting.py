@@ -16,6 +16,26 @@ class SettingService(BaseService):
     def __init__(self):
         super(SettingService, self).__init__()
 
+    def query(self, section, page=1, limit=None):
+        query_dict = {}
+        if section:
+            query_dict = {
+                "filter": {
+                    "and": {
+                        "section": section
+                    }
+                }
+            }
+        data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_dict=True)
+        return data
+
+    def config(self, section, page=1, limit=None):
+        result = self.query(section, page=page, limit=limit)
+        data = dict()
+        for ent in result["items"]:
+            data[ent['key']] = ent['value']
+        return data
+
     def fetch_list(self, section="", prefix=""):
         query_dict = {
             "filter": {
@@ -67,7 +87,6 @@ class SettingService(BaseService):
             sup_ctr.addProcessGroup(name)
             sup_ctr.startProcessGroup(name)
         return no_diff
-
 
     def update_record(self, records, reload_proc=False):
         for record in records:

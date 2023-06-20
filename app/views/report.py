@@ -5,7 +5,6 @@ from app.ext import serv
 from app.utils.responses import response_with
 from app.utils import responses as resp
 from app.utils.jwt import Jwt
-from app.utils.ciopaas.ciopaas import crm_list, crm_list_all, hm_data
 from .base import *
 from app.config import cfg
 import json
