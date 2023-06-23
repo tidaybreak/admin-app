@@ -129,13 +129,14 @@ def crm_list_all(host, api_access_id, api_access_secret,
         return []
     result = data["data"]["list"]
     total = data["data"]["total"]
-    print(total, page)
+    print("total:", total, page)
     total -= len(data["data"]["list"])
+    print("remaining:", total, page)
     while total > 0:
         page += 1
         data2 = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
-                         start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
-                         end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"))
+                         start=start,
+                         end=end)
         if "data" not in data2:
             print("接口错误：", data2)
             return []
@@ -143,19 +144,23 @@ def crm_list_all(host, api_access_id, api_access_secret,
             print(data2)
             break
         total -= len(data2["data"]["list"])
-        print(total, page)
+        print("remaining:", total, page)
         result += data2["data"]["list"]
 
     #print(len(result))
     return result
 
 
-def check_add(data, key):
+def check_add(data, key, log=False):
     if key not in data or data[key] is None:
         return 0
     if isinstance(data[key], int) and data[key] > 0:
+        if log:
+            print(key, data[key], data)
         return 1
     if isinstance(data[key], str) and data[key] != "":
+        if log:
+            print(key, data[key], data)
         return 1
     return 0
 
@@ -169,10 +174,12 @@ def rate(val1, val2):
 def hm_data(host, api_access_id, api_access_secret, start, end):
     data = crm_list_all(host, api_access_id, api_access_secret, start, end)
     date_hm = dict()
+    count = dict()
     for ent in data:
         day = ent["created_at"][:10]
         if day not in date_hm:
             date_hm[day] = dict()
+            count[day] = 0
 
         hm = ent["user_name"]
         if hm not in date_hm[day]:
@@ -195,9 +202,15 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
                 'listened_rate': 0,                       # 监听率
                 'intervention_rate': 0,                   # 介入率
 
+                'customer_count': 0,                      # 客户数量
+                'connected_customer_success_rate': 0,     # 接通客户成功率
+                'intervention_customer_success_rate': 0,  # 介入客户成功率
+
                 #'fs_push_screens_total': 0,             # 发起弹屏坐席个数
                 #'actual_push_screens_total': 0,         # 实际弹屏坐席个数
             }
+
+        count[day] += 1
 
         date_hm[day][hm]['outbound_count'] += 1
         date_hm[day][hm]['connection_count'] += check_add(ent, 'talktimes')
@@ -206,11 +219,18 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
         #date_hm[day][hm]['fs_monitor_change_talk'] += check_add(ent, 'fs_monitor_change_talk')
         #date_hm[day][hm]['fs_push_screens'] += check_add(ent, 'fs_push_screens')
         #date_hm[day][hm]['fs_intervention_time'] += check_add(ent, 'fs_intervention_time')
-        date_hm[day][hm]['pushed_at'] += check_add(ent, 'pushed_at')
+
+        # 0623 实际6个 有一个fs_push_screens是2不计
+        if ent['fs_push_screens'] == 1:
+            date_hm[day][hm]['pushed_at'] += check_add(ent, 'pushed_at')
         date_hm[day][hm]['listened_at'] += check_add(ent, 'listened_at')
         date_hm[day][hm]['intervention_at'] += check_add(ent, 'intervention_at')
+
         #date_hm[day][hm]['fs_push_screens_total'] += check_add(ent, 'fs_push_screens_total')
         #date_hm[day][hm]['actual_push_screens_total'] += check_add(ent, 'actual_push_screens_total')
+
+        if 'status_manual' in ent and isinstance(ent['status_manual'], str) and (ent['status_manual'].find('A') >= 0 or ent['status_manual'].find('B') >= 0):
+            date_hm[day][hm]['customer_count'] += 1
 
     for k, v in date_hm.items():
         for k2, v2 in v.items():
@@ -220,6 +240,10 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
             date_hm[k][k2]['listened_rate'] = rate(v2['listened_at'], v2['pushed_at'])
             date_hm[k][k2]['intervention_rate'] = rate(v2['intervention_at'], v2['listened_at'])
 
+            date_hm[k][k2]['connected_customer_success_rate'] = rate(v2['customer_count'], v2['connection_count'])
+            date_hm[k][k2]['intervention_customer_success_rate'] = rate(v2['customer_count'], v2['intervention_at'])
+
+    print(start, end, count)
     print(date_hm)
     return date_hm
 
