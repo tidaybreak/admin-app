@@ -23,8 +23,8 @@ view.before_request(Jwt.load_api)
 @view.route('/query', methods=['GET'])
 def query():
 
-    # start = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d 00:00:00")
-    # end = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d 23:59:59")
+    # start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
+    # end = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 23:59:59")
     # data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804', start=start, end=end)
     # for k, v in data.items():
     #     for k2, v2 in v.items():
@@ -33,7 +33,7 @@ def query():
     #             'agent_name': k2
     #         }
     #         serv.report.update(query_dict, v2, insert=True)
-    #         #serv.report.update()
+            #serv.report.update()
 
     #sess = Jwt.payload()
 

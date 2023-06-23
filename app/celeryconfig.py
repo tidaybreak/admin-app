@@ -57,7 +57,7 @@ beat_schedule = {
     "报表": {
         "task": "app.jobs.telad.crm_list",
         #"schedule": crontab(minute="*/2"),
-        "schedule": crontab(minute="18", hour="2"),
+        "schedule": crontab(minute="30", hour="0"),
         "options": {
             "queue": "default",
             "link": signature(

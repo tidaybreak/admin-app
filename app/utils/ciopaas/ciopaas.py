@@ -156,11 +156,11 @@ def check_add(data, key, log=False):
         return 0
     if isinstance(data[key], int) and data[key] > 0:
         if log:
-            print(key, data[key], data)
+            print(key, data[key])
         return 1
     if isinstance(data[key], str) and data[key] != "":
         if log:
-            print(key, data[key], data)
+            print(key, data[key])
         return 1
     return 0
 
@@ -195,6 +195,11 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
                 #'fs_push_screens': 0,                   # 是否弹屏
                 #'fs_intervention_time': 0,              # 介入时长
 
+                'screen_pop_count': 0,                  # 可弹屏数
+                'screen_pop_rate': 0,                   # 可弹屏率
+                'offline_screen_pop_count': 0,          # 未在线弹屏
+                'offline_screen_pop_rate': 0,           # 未在线弹屏率
+
                 'pushed_at': 0,                         # 弹屏时间
                 'listened_at': 0,                       # 监听时间
                 'intervention_at': 0,                   # 介入时间
@@ -222,7 +227,11 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
 
         # 0623 实际6个 有一个fs_push_screens是2不计
         if ent['fs_push_screens'] == 1:
-            date_hm[day][hm]['pushed_at'] += check_add(ent, 'pushed_at')
+            date_hm[day][hm]['pushed_at'] += 1
+            date_hm[day][hm]['screen_pop_count'] += 1
+        elif ent['fs_push_screens'] == 2:
+            date_hm[day][hm]['offline_screen_pop_count'] += 1
+            date_hm[day][hm]['screen_pop_count'] += 1
         date_hm[day][hm]['listened_at'] += check_add(ent, 'listened_at')
         date_hm[day][hm]['intervention_at'] += check_add(ent, 'intervention_at')
 
@@ -235,6 +244,9 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
     for k, v in date_hm.items():
         for k2, v2 in v.items():
             date_hm[k][k2]['connection_rate'] = rate(v2['connection_count'], v2['outbound_count'])  # 接通率
+
+            date_hm[k][k2]['screen_pop_rate'] = rate(v2['screen_pop_count'], v2['outbound_count'])
+            date_hm[k][k2]['offline_screen_pop_rate'] = rate(v2['offline_screen_pop_count'], v2['connection_count'])
 
             date_hm[k][k2]['pushed_rate'] = rate(v2['pushed_at'], v2['connection_count'])
             date_hm[k][k2]['listened_rate'] = rate(v2['listened_at'], v2['pushed_at'])
