@@ -55,6 +55,7 @@ def login(host, api_access_id, api_access_secret):
             "api_key": data["data"]["api_key"],
             "api_key_expire": data["data"]["api_key_expire"]
         }
+    print("login:", response.json())
     return response.json()
 
 
@@ -101,11 +102,17 @@ def crm_list(host, api_access_id, api_access_secret,
         "mark": "",
         "status_search": "status"
     }
-    print(session)
+    print("session:", session)
     data.update(session)
 
     url = 'https://'+host+'/api/crmList'
     response = requests.post(url, headers=headers, data=json.dumps(data))
+    result = response.json()
+    if "data" not in result:
+        login(host, api_access_id, api_access_secret)
+        print(session)
+        data.update(session)
+        response = requests.post(url, headers=headers, data=json.dumps(data))
     return response.json()
 
 
@@ -117,6 +124,9 @@ def crm_list_all(host, api_access_id, api_access_secret,
     data = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
                     start=start,
                     end=end)
+    if "data" not in data:
+        print("接口错误：", data)
+        return []
     result = data["data"]["list"]
     total = data["data"]["total"]
     print(total, page)
@@ -126,6 +136,9 @@ def crm_list_all(host, api_access_id, api_access_secret,
         data2 = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
                          start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
                          end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"))
+        if "data" not in data2:
+            print("接口错误：", data2)
+            return []
         if len(data2["data"]["list"]) == 0:
             print(data2)
             break
@@ -135,6 +148,22 @@ def crm_list_all(host, api_access_id, api_access_secret,
 
     #print(len(result))
     return result
+
+
+def check_add(data, key):
+    if key not in data or data[key] is None:
+        return 0
+    if isinstance(data[key], int) and data[key] > 0:
+        return 1
+    if isinstance(data[key], str) and data[key] != "":
+        return 1
+    return 0
+
+
+def rate(val1, val2):
+    if val2 > 0:
+        return round(val1 / val2, 2)
+    return 0.0
 
 
 def hm_data(host, api_access_id, api_access_secret, start, end):
@@ -152,15 +181,45 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
                 'company_name': ent['parent_sn'],
                 'outbound_area': '',             # 外呼地区
                 'outbound_count': 0,        # 外呼数量
-                'connection_count': 0       # 接通数量
+                'connection_count': 0,       # 接通数量
+
+                #'fs_listen_agent': 0,                   # 监听坐席
+                #'fs_monitor_change_talk': 0,            # 是否介入
+                #'fs_push_screens': 0,                   # 是否弹屏
+                #'fs_intervention_time': 0,              # 介入时长
+
+                'pushed_at': 0,                         # 弹屏时间
+                'listened_at': 0,                       # 监听时间
+                'intervention_at': 0,                   # 介入时间
+                'pushed_rate': 0,                         # 弹屏率
+                'listened_rate': 0,                       # 监听率
+                'intervention_rate': 0,                   # 介入率
+
+                #'fs_push_screens_total': 0,             # 发起弹屏坐席个数
+                #'actual_push_screens_total': 0,         # 实际弹屏坐席个数
             }
 
         date_hm[day][hm]['outbound_count'] += 1
-        if ent['talktimes'] > 0:
-            date_hm[day][hm]['connection_count'] += 1
+        date_hm[day][hm]['connection_count'] += check_add(ent, 'talktimes')
+
+        #date_hm[day][hm]['fs_listen_agent'] += check_add(ent, 'fs_listen_agent')
+        #date_hm[day][hm]['fs_monitor_change_talk'] += check_add(ent, 'fs_monitor_change_talk')
+        #date_hm[day][hm]['fs_push_screens'] += check_add(ent, 'fs_push_screens')
+        #date_hm[day][hm]['fs_intervention_time'] += check_add(ent, 'fs_intervention_time')
+        date_hm[day][hm]['pushed_at'] += check_add(ent, 'pushed_at')
+        date_hm[day][hm]['listened_at'] += check_add(ent, 'listened_at')
+        date_hm[day][hm]['intervention_at'] += check_add(ent, 'intervention_at')
+        #date_hm[day][hm]['fs_push_screens_total'] += check_add(ent, 'fs_push_screens_total')
+        #date_hm[day][hm]['actual_push_screens_total'] += check_add(ent, 'actual_push_screens_total')
 
     for k, v in date_hm.items():
         for k2, v2 in v.items():
-            date_hm[k][k2]['connection_rate'] = round(v2['connection_count'] / v2['outbound_count'], 2)  # 接通率
+            date_hm[k][k2]['connection_rate'] = rate(v2['connection_count'], v2['outbound_count'])  # 接通率
+
+            date_hm[k][k2]['pushed_rate'] = rate(v2['pushed_at'], v2['connection_count'])
+            date_hm[k][k2]['listened_rate'] = rate(v2['listened_at'], v2['pushed_at'])
+            date_hm[k][k2]['intervention_rate'] = rate(v2['intervention_at'], v2['listened_at'])
+
+    print(date_hm)
     return date_hm
 

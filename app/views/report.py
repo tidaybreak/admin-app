@@ -7,6 +7,8 @@ from app.utils import responses as resp
 from app.utils.jwt import Jwt
 from .base import *
 from app.config import cfg
+from app.utils.ciopaas.ciopaas import hm_data
+from datetime import datetime, timedelta
 import json
 
 __author__ = 'Ti'
@@ -21,8 +23,9 @@ view.before_request(Jwt.load_api)
 @view.route('/query', methods=['GET'])
 def query():
 
-    # data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804')
-    # print(len(data))
+    # start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
+    # end = (datetime.now()).strftime("%Y-%m-%d 00:00:00")
+    # data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804', start=start, end=end)
     # for k, v in data.items():
     #     for k2, v2 in v.items():
     #         query_dict = {
