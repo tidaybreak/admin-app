@@ -56,8 +56,7 @@ worker_proc_alive_timeout = 15
 beat_schedule = {
     "报表": {
         "task": "app.jobs.telad.crm_list",
-        #"schedule": crontab(minute="*/1"),
-        "schedule": crontab(minute="40", hour="1"),
+        "schedule": crontab(minute="*/1"),
         "options": {
             "queue": "default",
             "link": signature(
@@ -66,6 +65,7 @@ beat_schedule = {
         }
     }
 }
+#"schedule": crontab(minute="40", hour="1"),
 
 broker_url = cfg.CELERY_BROKER_URL                     # os.environ.get("BROKER_URL", "redis://redis-dev.ofidc.com:6379/5")
 result_backend = cfg.CELERY_RESULT_BACKEND      # os.environ.get("CELERY_RESULT_BACKEND", "redis://redis-dev.ofidc.com:6379/5")
