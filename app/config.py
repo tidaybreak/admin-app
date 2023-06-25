@@ -42,7 +42,7 @@ class Config(TraceMixinConfig):
     # redis cache session相关 SESSION_KEY_PREFIX和其它app共用 要保持和其它app一样
     # SESSION_COOKIE_SAMESITE = None
     # SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', "ofidc.com")
+    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', "example.com")
     SESSION_TYPE = "redis"
     SESSION_SERIALIZER = msgpack
     SESSION_USE_SIGNER = True
@@ -60,11 +60,6 @@ class Config(TraceMixinConfig):
 
     # es参数
     ES_INDEX = APP_NAME
-
-    # 权限|认证
-    AUTH_CACHE_TIMEOUT = 6000
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'sbc9izg54n08rmol!Ujrz0e8'
-    LOCAL_USER = {}
 
     # Other
     APPLICATION_ROOT = ""
@@ -96,19 +91,19 @@ class EnvConfig(Config):
     CACHE_DEFAULT_TIMEOUT = 0
 
     # MYSQL数据库链接配置
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "mysql+pymysql://root:ti999@mysql-dev.ofidc.com:3306/aicrm?charset=utf8")
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "mysql+pymysql://user:pass@host:3306/db?charset=utf8")
 
     # Redis
-    REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis-dev.ofidc.com:6379/1')
-    CACHE_REDIS_URL = os.environ.get('CACHE_REDIS_URL', 'redis://redis-dev.ofidc.com:6379/1')
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', "redis://redis-dev.ofidc.com:6379/5")
-    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', "redis://redis-dev.ofidc.com:6379/5")
+    REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+    CACHE_REDIS_URL = os.environ.get('CACHE_REDIS_URL', 'redis://redis:6379/1')
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', "redis://redis:6379/5")
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', "redis://redis:6379/5")
 
     # RediSearch配置 1.2.0只支持在db0上操作
-    RDS_HOST = ""
+    RDS_HOST = "redissearch"
 
     # ES连接配置
-    ELASTICSEARCH_HOST = "elasticsearch-dev.ofidc.com:9200"
+    ELASTICSEARCH_HOST = os.environ.get('ELASTICSEARCH_HOST', "elasticsearch")
 
     # influxdb
     INFLUXDB_HOST = '172.18.0.145'

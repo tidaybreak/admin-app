@@ -9,6 +9,7 @@
 *.tar
 *.zip
 .idea
+.env
 celerybeat.pid
 celerybeat-schedule
 flower
