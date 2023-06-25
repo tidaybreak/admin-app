@@ -24,7 +24,7 @@ class TraceMixinConfig:
 
 class Config(TraceMixinConfig):
     # Flask密钥用于会话 cookie 的安全签名
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'xxxx'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'sbc9izg54n08rmol!Ujrz0e8'
 
     APP_NAME = os.getenv('APP_NAME', "app")
     LOG_LEVEL = "INFO"
