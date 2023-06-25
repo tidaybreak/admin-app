@@ -188,7 +188,8 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
                 'company_name': ent['parent_sn'],
                 'outbound_area': '',             # 外呼地区
                 'outbound_count': 0,        # 外呼数量
-                'connection_count': 0,       # 接通数量
+                'connection_count': 0,      # 接通数量
+                'connection_rate': 0,       # 接通率
 
                 #'fs_listen_agent': 0,                   # 监听坐席
                 #'fs_monitor_change_talk': 0,            # 是否介入

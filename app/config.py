@@ -96,7 +96,7 @@ class EnvConfig(Config):
     CACHE_DEFAULT_TIMEOUT = 0
 
     # MYSQL数据库链接配置
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "mysql+pymysql://root:ti999@mysql-dev.ofidc.com:3306/telad?charset=utf8")
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', "mysql+pymysql://root:ti999@mysql-dev.ofidc.com:3306/aicrm?charset=utf8")
 
     # Redis
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis-dev.ofidc.com:6379/1')
