@@ -100,7 +100,7 @@ class EnvConfig(Config):
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', "redis://redis:6379/5")
 
     # RediSearch配置 1.2.0只支持在db0上操作
-    RDS_HOST = "redissearch"
+    RDS_HOST = ""
 
     # ES连接配置
     ELASTICSEARCH_HOST = os.environ.get('ELASTICSEARCH_HOST', "elasticsearch")
