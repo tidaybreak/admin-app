@@ -23,6 +23,9 @@ class TraceMixinConfig:
 
 
 class Config(TraceMixinConfig):
+    # Flask密钥用于会话 cookie 的安全签名
+    SECRET_KEY = os.environ.get('SECRET_KEY') or ''
+
     APP_NAME = os.getenv('APP_NAME', "app")
     LOG_LEVEL = "INFO"
     APP_BASE_API = '/api/'
@@ -39,9 +42,7 @@ class Config(TraceMixinConfig):
     CACHE_KEY_PREFIX = "%s_cache:" % APP_NAME
     CACHE_ENABLE = True
 
-    # redis cache session相关 SESSION_KEY_PREFIX和其它app共用 要保持和其它app一样
-    # SESSION_COOKIE_SAMESITE = None
-    # SESSION_COOKIE_SECURE = True
+    # SESSION
     SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', "example.com")
     SESSION_TYPE = "redis"
     SESSION_SERIALIZER = msgpack
