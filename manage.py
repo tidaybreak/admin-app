@@ -12,12 +12,14 @@ except ImportError as err:
 
 import builtins
 import imp
-from dotenv import load_dotenv
 
-load_dotenv('.env')
 
 try:
     import line_profiler
+
+    from dotenv import load_dotenv
+
+    load_dotenv('.env')
 
     profiler = line_profiler.LineProfiler()
 
