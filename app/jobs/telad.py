@@ -15,20 +15,31 @@ from app.utils.ciopaas.ciopaas import hm_data
 
 @celery.task
 def crm_list(date=None):
-    api = serv.setting.config('api')
-    print(api)
-    start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
-    end = (datetime.now()).strftime("%Y-%m-%d 00:00:00")
-    data = hm_data(api['url'], api['api_access_id'], api['api_access_secret'],
-                   start=start, end=end)
-    print(len(data))
-    for k, v in data.items():
-        for k2, v2 in v.items():
-            query_dict = {
-                'date': k,
-                'agent_name': k2
-            }
-            serv.report.update(query_dict, v2, insert=True)
+    data = serv.dict.items_pages(code='API')
+    for ent in data['items']:
+        val = ent['value'].split(',')
+        url = val[0]
+        api_access_id = val[1]
+        api_access_secret = val[2]
+
+        user = serv.user.find_by_username(username=ent['name'])
+        uid = user.id
+
+        #api = serv.setting.config('api')
+        print(val)
+        start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
+        end = (datetime.now()).strftime("%Y-%m-%d 00:00:00")
+        data = hm_data(url, api_access_id, api_access_secret,
+                       start=start, end=end)
+        print(len(data))
+        for k, v in data.items():
+            for k2, v2 in v.items():
+                query_dict = {
+                    'date': k,
+                    'agent_name': k2
+                }
+                v2['uid'] = uid
+                serv.report.update(query_dict, v2, insert=True)
     return True, ''
 
 

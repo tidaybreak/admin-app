@@ -54,7 +54,10 @@ class Jwt:
 
     @staticmethod
     def authHeader(request):
-        token = request.headers.get('X-Token')
+        token = request.headers.get('Authorization')
+        if token:
+            token = token.replace('bearer ', '')
+        #token = request.headers.get('X-Token') or request.cookies.get('Admin-Token')
         p = Jwt.jwtDecode(token)
         if p == 50008:
             return response({}, code=50008, message='非法token！')
@@ -75,6 +78,9 @@ class Jwt:
 
     @staticmethod
     def payload():
-        token = request.headers.get('X-Token')
+        token = request.headers.get('Authorization')
+        if token:
+            token = token.replace('bearer ', '')
+        #token = request.headers.get('X-Token') or request.cookies.get('Admin-Token')
         p = Jwt.jwtDecode(token)
         return p

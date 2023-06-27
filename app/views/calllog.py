@@ -14,7 +14,7 @@ import json
 __author__ = 'Ti'
 
 
-url_prefix = cfg.APP_BASE_API + "report"
+url_prefix = cfg.APP_BASE_API + "calllog"
 view_name = os.path.basename(__file__).split('.')[0]
 view = Blueprint(view_name, __name__)
 view.before_request(Jwt.load_api)
@@ -39,7 +39,7 @@ def query():
     #sess = Jwt.payload()
     data = request.get_json()
     query_dict = data['search']
-    result = serv.report.get_report(query_dict, page=data['pageNum'], limit=data['pageSize'])
+    result = serv.calllog.pages(query_dict, page=data['pageNum'], limit=data['pageSize'])
 
     test = {
         "total": 2,

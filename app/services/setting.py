@@ -26,7 +26,7 @@ class SettingService(BaseService):
                     }
                 }
             }
-        data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_dict=True)
+        data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict")
         return data
 
     def config(self, section, page=1, limit=None):
@@ -50,7 +50,7 @@ class SettingService(BaseService):
                 }
             }
         }
-        data = super().fetch_list(query_dict=query_dict, to_dict=True)
+        data = super().fetch_list(query_dict=query_dict, to_type="dict")
         return data
 
     def reload_supervisor_config(self):

@@ -58,11 +58,11 @@ class BaseService(object):
     def model(self):
         return self.dbaccess.get_model(self.model_name)
 
-    def find_one(self, query, to_dict=False):
+    def find_one(self, query, to_type=""):
         query_dict = {
             "filter": query
         }
-        items = self.fetch_list(query_dict=query_dict, to_dict=to_dict)["items"]
+        items = self.fetch_list(query_dict=query_dict, to_type=to_type)["items"]
         if len(items) > 0:
             return items[0]
         else:
@@ -72,11 +72,19 @@ class BaseService(object):
         return self.dbaccess.delete(self.model_name, id)
 
     def update(self, query_dict={}, update_dict={}, insert=False):
+        if 'update_time' in update_dict:
+            del update_dict['update_time']
+        if 'create_time' in update_dict:
+            del update_dict['create_time']
         return self.dbaccess.update(self.model_name, query_dict, update_dict, insert=insert)
 
-    def fetch_list(self, page=1, limit=None, query_dict={}, to_dict=True):
+    def fetch_list(self, page=1, limit=None,
+                   query_dict={},
+                   to_type="dict",
+                   field_info=False):
         """
         获取分页数据
+        :param field_info:
         :param page:
         :param limit:
         :param query_dict:
@@ -134,10 +142,9 @@ class BaseService(object):
 
         # test search for levels #
         query_string = '{"filter" : {"or" : { "city.name" : "New York", "lastname" : "Man" } }, "sort": { "name" : {"order": "asc", "idx": 1} } }'
-        :param to_dict:
+        :param to_type:
         :return:
         """
-        result = []
         #print("mutex-acquire  %s %s  %s  %s  %s" % (os.getpid(), pid, t.ident, t.getName(), self.mutex))
         entities = []
         total = -1
@@ -152,16 +159,29 @@ class BaseService(object):
             #print("db error:", e)
             raise e
 
-        for entity in entities:
-            if to_dict:
-                result.append(entity.dict())
-            else:
-                result.append(entity)
-        data = {
-            "total": total,
-            "items": result,
-            "columns": self.columns
-        }
+        to_type = to_type.split('.')
+        if to_type[0] == 'map':
+            mkey = 'id'
+            if len(to_type) == 2:
+                mkey = to_type[1]
+            data = {}
+            for entity in entities:
+                item = entity.dict()
+                if mkey in item:
+                    data[item[mkey]] = item
+        else:
+            items = []
+            for entity in entities:
+                if to_type[0] == 'dict':
+                    items.append(entity.dict())
+                else:
+                    items.append(entity)
+            data = {
+                "total": total,
+                "items": items
+            }
+            if field_info:
+                data["columns"] = self.columns
         return data
 
     def bulk_save(self, conds):

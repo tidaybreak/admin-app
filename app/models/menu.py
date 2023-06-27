@@ -1,7 +1,7 @@
 from app.models.sqlacodegen import *
 import copy
 
-class MReport(Report):
+class MMenu(Menu):
     """
     可修改配置表
     """
@@ -11,14 +11,7 @@ class MReport(Report):
         表格字段属性
         :return:
         """
-        return {
-            "id": {
-                "sort": 'custom'
-            },
-            "date": {
-                "sort": 'custom'
-            }
-        }
+        return {}
 
     def dict(self, exclude=None):
         """
@@ -30,7 +23,6 @@ class MReport(Report):
         if '_sa_instance_state' in entity:
             del entity['_sa_instance_state']
 
-        entity['importance'] = 1
         if exclude:
             for exc in exclude:
                 del entity[exc]
