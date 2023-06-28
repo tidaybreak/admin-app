@@ -11,7 +11,7 @@ redis-cli  -n 1 keys "dcim_cache:*" | xargs redis-cli -n 1 del
 
 Flask 将数据库表转换为sqlalchemy models
 pip install sqlacodegen
-sqlacodegen mysql+pymysql://root:ti999@172.18.0.5/dcim > app/models/sqlacodegen.py
+sqlacodegen mysql+pymysql://root:ti999@172.18.0.5/aicrm > app/models/sqlacodegen.py
 
 ### greenlet
 On Python 3.7, you either need gevent >= 1.4.0, < 20.9; greenlet >= 0.4.14, < 0.4.17 OR gevent >= 20.9; greenlet >= 0.4.17.

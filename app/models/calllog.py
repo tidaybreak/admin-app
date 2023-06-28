@@ -12,7 +12,11 @@ class MCalllog(Calllog):
         表格字段属性
         :return:
         """
-        return {}
+        return {
+            "sn": {
+                "show": 0
+            }
+        }
 
     def dict(self, exclude=None):
         """

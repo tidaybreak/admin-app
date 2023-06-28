@@ -10,11 +10,11 @@ import json, copy
 import pytz
 from influxdb import InfluxDBClient
 from app.config import cfg
-from app.utils.ciopaas.ciopaas import hm_data
+from app.utils.ciopaas.ciopaas import hm_data, call_ab_log
 
 
 @celery.task
-def crm_list(date=None):
+def report_update(date=None):
     data = serv.dict.items_pages(code='API')
     for ent in data['items']:
         val = ent['value'].split(',')
@@ -23,6 +23,9 @@ def crm_list(date=None):
         api_access_secret = val[2]
 
         user = serv.user.find_by_username(username=ent['name'])
+        if user is None:
+            print("no link:", ent['name'])
+            continue
         uid = user.id
 
         #api = serv.setting.config('api')
@@ -44,7 +47,43 @@ def crm_list(date=None):
 
 
 @celery.task
-def crm_list_signature(args):
+def report_signature(args):
+    return True, ""
+
+
+@celery.task
+def calllog_update(date=None):
+    data = serv.dict.items_pages(code='API')
+    for ent in data['items']:
+        val = ent['value'].split(',')
+        url = val[0]
+        api_access_id = val[1]
+        api_access_secret = val[2]
+
+        user = serv.user.find_by_username(username=ent['name'])
+        if user is None:
+            print("no link:", ent['name'])
+            continue
+        uid = user.id
+
+        #api = serv.setting.config('api')
+        print(val)
+        data = call_ab_log(url, api_access_id, api_access_secret, days=9)
+        print(len(data))
+        for ent in data:
+            query_dict = {
+                'sn': ent['sn']
+            }
+            ent['uid'] = uid
+            #serv.calllog.update(query_dict, ent, insert=True)
+            serv.calllog.insert(ent, action='add')
+        #serv.calllog.bulk_save(data)
+
+    return True, ''
+
+
+@celery.task
+def calllog_signature(args):
     return True, ""
 
 

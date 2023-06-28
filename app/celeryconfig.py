@@ -41,7 +41,7 @@ task_default_routing_key = cfg.APP_NAME
 task_serializer = "pickle"
 accept_content = ["pickle", "json", "msgpack", "yaml"]
 imports = [
-    "app.jobs.telad"
+    "app.jobs.aicrm"
 ]
 timezone = "Asia/Shanghai"
 # 报告STARTED状态
@@ -54,14 +54,24 @@ worker_max_tasks_per_child = 2
 worker_proc_alive_timeout = 15
 
 beat_schedule = {
-    "报表": {
-        "task": "app.jobs.telad.crm_list",
+    "报表更新": {
+        "task": "app.jobs.aicrm.report_update",
         #"schedule": crontab(minute="*/2"),
         "schedule": crontab(minute="30", hour="0"),
         "options": {
             "queue": "default",
             "link": signature(
-                "app.jobs.telad.crm_list_signature"
+                "app.jobs.aicrm.report_signature"
+            )
+        }
+    },
+    "更新流水": {
+        "task": "app.jobs.aicrm.calllog_update",
+        "schedule": crontab(minute="*/5"),
+        "options": {
+            "queue": "default",
+            "link": signature(
+                "app.jobs.aicrm.calllog_signature"
             )
         }
     }

@@ -64,7 +64,8 @@ def crm_list(host, api_access_id, api_access_secret,
              pageIndex=0,
              pageSize=10000,
              start=datetime.now().strftime("%Y-%m-%d 00:00:00"),
-             end=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")):
+             end=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
+             status=''):
     current_timestamp = int(time.time())
     if current_timestamp > session["api_key_expire"] - 60:
         login(host, api_access_id, api_access_secret)
@@ -102,6 +103,8 @@ def crm_list(host, api_access_id, api_access_secret,
         "mark": "",
         "status_search": "status"
     }
+    if status != '':
+        data['status'] = status
     print("session:", session)
     data.update(session)
 
@@ -118,12 +121,14 @@ def crm_list(host, api_access_id, api_access_secret,
 
 def crm_list_all(host, api_access_id, api_access_secret,
                  start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
-                 end=(datetime.now()).strftime("%Y-%m-%d 00:00:00")):
+                 end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"),
+                 status=''):
     page = 0
     pageIndex = 5000
     data = crm_list(host, api_access_id, api_access_secret, pageIndex=page, pageSize=pageIndex,
                     start=start,
-                    end=end)
+                    end=end,
+                    status=status)
     if "data" not in data:
         print("接口错误：", data)
         return []
@@ -260,3 +265,13 @@ def hm_data(host, api_access_id, api_access_secret, start, end):
     print(date_hm)
     return date_hm
 
+
+def call_ab_log(host, api_access_id, api_access_secret, days=7):
+    start = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d 00:00:00")
+    end = (datetime.now()).strftime("%Y-%m-%d 00:00:00")
+    data = crm_list_all(host, api_access_id, api_access_secret, start, end, status='A,B')
+    date_hm = dict()
+    count = dict()
+    return data
+    for ent in data:
+        day = ent["created_at"][:10]

@@ -91,7 +91,7 @@ class MenuService(BaseService):
         return result
 
     def add(self, data):
-        return self.bulk_save([data])
+        return self.insert(data)
 
     def edit(self, rid, data):
         query_dict = {

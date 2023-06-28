@@ -9,6 +9,6 @@ conn=pymssql.connect(server='frp.ofidc.com', port=51233, user='ofidc', password=
 cursor_1 = conn.cursor()
 cursor_1.execute('SELECT TOP 1000 * FROM [JitonData].[dbo].[hisdata_E4P01]')
 
-print( "all persons" )
-print( cursor_1.fetchall() )  # 显示出的是cursor_2游标查询出来的结果
+print("all persons")
+print(cursor_1.fetchall())  # 显示出的是cursor_2游标查询出来的结果
 

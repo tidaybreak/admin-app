@@ -8,6 +8,7 @@ from app import models
 import traceback
 from app.utils.utils import resolve_path
 from app.db.elastic_query import elastic_query
+from sqlalchemy import exc
 
 # 这里会匹配get_<model>_by_<attr>这种格式的调用
 REGX = re.compile(r'get_([a-z_]+)_by_([a-z_]+)')
@@ -51,6 +52,13 @@ class DBAccess(object):
         else:
             return getattr(models, item)
 
+    def get_model(self, obj):
+        """
+        传入一个模型，例如：user，这里就会查询User模型
+        """
+        # obj = getattr(models, obj.capitalize())
+        return getattr(models, obj)
+
     def get_query(self, obj):
         """
         传入一个模型，例如：user，这里就会查询User模型
@@ -62,13 +70,70 @@ class DBAccess(object):
             result = self.db.session.query(obj)
         return result
 
-    def get_model(self, obj):
-        """
-        传入一个模型，例如：user，这里就会查询User模型
-        """
-        # obj = getattr(models, obj.capitalize())
-        return getattr(models, obj)
+    def query_in(self, cls_str, key, values):
+        cls = getattr(models, cls_str)
+        data = self.db.session.query(cls).filter_by(cls[key].in_(values))
+        return data
 
+    # 功能：不存在插入 add存在不更新 merge存在按主键更新
+    # merge:如果在INSERT后导致在一个UNIQUE索引或PRIMARY KEY中出现重复值，则执行UPDATE
+    # merge:data中必须有一个为主键，没有主键而只有唯一索引会报错，这点与INSERT UPDATE不同
+    def insert(self, cls_str, data, action='add'):
+        try:
+            cls = getattr(models, cls_str)
+            if action == 'add':
+                self.db.session.add(cls(**data))
+            elif action == 'merge':
+                self.db.session.merge(cls(**data))
+            self.db.session.commit()
+            return True, "ok"
+        except exc.IntegrityError as e:
+            # 捕捉唯一性冲突错误
+            self.db.session.rollback()
+            # 执行相应的处理操作
+            print("insert捕捉唯一性冲突错误:", str(e))
+        except Exception as e:
+            # 回滚
+            self.db.session.rollback()
+            traceback.print_exc()
+            return False, traceback.format_exc()
+
+    # 功能：不存在插入 存在按主键更新
+    def update(self, cls_str, query_dict={}, update_dict={}, insert=False):
+        try:
+            cls = getattr(models, cls_str)
+            # self.db.session.query(cls).filter_by(**query_dict).update(update_dict)
+            call = self.db.session.query(cls).filter_by(**query_dict)
+            call_stats = call.first()
+            if call_stats:
+                # 更新行
+                call.update(update_dict)
+                self.db.session.commit()
+            elif insert:
+                # 插入新行
+                query_dict.update(update_dict)
+                self.insert(cls_str, query_dict)
+
+            return True, "ok"
+        except Exception:
+            # 回滚
+            self.db.session.rollback()
+            traceback.print_exc()
+            return False, traceback.format_exc()
+
+    def delete(self, cls_str, id):
+        try:
+            cls = getattr(models, cls_str)
+            self.db.session.query(cls).filter_by(id=id).delete()
+            self.db.session.commit()
+            return True, "ok"
+        except Exception:
+            # 回滚
+            self.db.session.rollback()
+            traceback.print_exc()
+            return False, traceback.format_exc()
+
+    # 一条失败全体不成功
     def bulk_save(self, cls_str, conds):
         '''
         批量插入
@@ -84,6 +149,11 @@ class DBAccess(object):
             )
             self.db.session.commit()
             return True, "ok"
+        except exc.IntegrityError as e:
+            # 捕捉唯一性冲突错误
+            self.db.session.rollback()
+            # 执行相应的处理操作
+            print("bulk_save捕捉唯一性冲突错误:", str(e))
         except Exception:
             # 回滚
             self.db.session.rollback()
@@ -104,40 +174,6 @@ class DBAccess(object):
                 conds
             )
             self.db.session.commit()
-            return True, "ok"
-        except Exception:
-            # 回滚
-            self.db.session.rollback()
-            traceback.print_exc()
-            return False, traceback.format_exc()
-
-    def delete(self, cls_str, id):
-        try:
-            cls = getattr(models, cls_str)
-            self.db.session.query(cls).filter_by(id=id).delete()
-            self.db.session.commit()
-            return True, "ok"
-        except Exception:
-            # 回滚
-            self.db.session.rollback()
-            traceback.print_exc()
-            return False, traceback.format_exc()
-
-    def update(self, cls_str, query_dict={}, update_dict={}, insert=False):
-        try:
-            cls = getattr(models, cls_str)
-            # self.db.session.query(cls).filter_by(**query_dict).update(update_dict)
-            call = self.db.session.query(cls).filter_by(**query_dict)
-            call_stats = call.first()
-            if call_stats:
-                # 更新行
-                call.update(update_dict)
-                self.db.session.commit()
-            elif insert:
-                # 插入新行
-                query_dict.update(update_dict)
-                self.bulk_save(cls_str, [query_dict])
-
             return True, "ok"
         except Exception:
             # 回滚

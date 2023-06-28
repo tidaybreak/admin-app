@@ -16,6 +16,7 @@ class BaseService(object):
         self.plugins = self.load_plugins(ext.db.app)
         self.dbaccess = DBAccess()
         self.mutex = threading.Lock()
+        self.columns_list = []
         # 获取表结构
         '''
         self.columns = 
@@ -42,6 +43,8 @@ class BaseService(object):
         self.columns = reflection.Inspector.from_engine(engine).get_columns(table_name)
         for idx, val in enumerate(self.columns):
             self.columns[idx]['id'] = idx
+            self.columns[idx]['show'] = 1
+            self.columns_list.append(val['name'])
             if val['name'] in columns_info:
                 self.columns[idx] = {**self.columns[idx], **columns_info[val['name']]}
 
@@ -70,13 +73,6 @@ class BaseService(object):
 
     def delete(self, id):
         return self.dbaccess.delete(self.model_name, id)
-
-    def update(self, query_dict={}, update_dict={}, insert=False):
-        if 'update_time' in update_dict:
-            del update_dict['update_time']
-        if 'create_time' in update_dict:
-            del update_dict['create_time']
-        return self.dbaccess.update(self.model_name, query_dict, update_dict, insert=insert)
 
     def fetch_list(self, page=1, limit=None,
                    query_dict={},
@@ -184,10 +180,44 @@ class BaseService(object):
                 data["columns"] = self.columns
         return data
 
-    def bulk_save(self, conds):
+    def insert(self, cond, action='add'):
+        data = {}
+        for ent in self.columns_list:
+            if ent in cond:
+                data[ent] = cond[ent]
+        for ent in ['id', 'update_time', 'create_time']:
+            if ent in data:
+                del data[ent]
+        return self.dbaccess.insert(self.model_name, data, action=action)
+
+    def update(self, query_dict={}, update_dict={}, insert=False):
+        data = {}
+        for ent in self.columns_list:
+            if ent in update_dict:
+                data[ent] = update_dict[ent]
+        for ent in ['id', 'update_time', 'create_time']:
+            if ent in data:
+                del data[ent]
+        return self.dbaccess.update(self.model_name, query_dict, data, insert=insert)
+
+    def bulk_save(self, conds, ingore_exist=None):
         self.mutex.acquire()
         result = None
         try:
+            # if ingore_exist:
+            #     self.dbaccess.query_in(ingore_exist)
+
+            new_data = []
+            for item in conds:
+                data = {}
+                for k in self.columns_list:
+                    if k in item:
+                        data[k] = item[k]
+                for k2 in ['id', 'update_time', 'create_time']:
+                    if k2 in data:
+                        del data[k2]
+                if len(data) > 0:
+                    new_data.append(data)
             result = self.dbaccess.bulk_save(self.model_name, conds)
         except Exception as e:
             print("db error:", e)

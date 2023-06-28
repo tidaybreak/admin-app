@@ -5,7 +5,8 @@ from app.ext import serv
 from app.utils.utils import res_json
 from celery import chain
 from app.utils.responses import response_with
-from app.jobs.telad import crm_list
+from app.jobs.aicrm import report_update, calllog_update
+from app.utils.ciopaas.ciopaas import call_ab_log
 from app.utils import responses as resp
 from app.utils.jwt import Jwt
 from flask import Blueprint, current_app, request
@@ -33,8 +34,13 @@ def version():
 
 @view.route("/test")
 def test():
-    ver = crm_list()
-    return ver
+    return response_with(resp.SUCCESS_20000, value={"data": calllog_update()})
+
+    host = 'ai193.ciopaas.com'
+    api_access_id = 'be00bad65585da7e9202d30cef13a976'
+    api_access_secret = '61a460cb2640e62246bb92166d574804'
+    data = call_ab_log(host, api_access_id, api_access_secret, days=9)
+    return response_with(resp.SUCCESS_20000, value={"data": data})
 
 
 @view.route(cfg.APP_BASE_API + "/captcha")
