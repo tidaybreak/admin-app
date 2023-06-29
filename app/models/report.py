@@ -13,11 +13,15 @@ class MReport(BusReport):
         :return:
         """
         return {
+            "__uid__": {
+                "show": 0
+            },
             "id": {
                 "sort": 'custom'
             },
             "date": {
-                "sort": 'custom'
+                "sort": 'custom',
+                "search": 1
             }
         }
 

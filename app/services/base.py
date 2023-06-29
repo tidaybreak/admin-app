@@ -47,7 +47,7 @@ class BaseService(object):
             self.columns[idx]['id'] = idx
             self.columns[idx]['show'] = 1
             self.columns[idx]['edit'] = 0
-            self.columns[idx]['search'] = 1
+            self.columns[idx]['search'] = 0
             self.columns[idx]['title'] = val['comment']
             self.columns_list.append(val['name'])
             if val['name'] in columns_info:

@@ -119,6 +119,54 @@ def crm_list(host, api_access_id, api_access_secret,
     return response.json()
 
 
+# 子账号列表 http://wiki.ciopaas.com:8888/web/#/4?page_id=31
+def aiUserDatasapi(host, api_access_id, api_access_secret):
+    current_timestamp = int(time.time())
+    if current_timestamp > session["api_key_expire"] - 60:
+        login(host, api_access_id, api_access_secret)
+
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "pageIndex": "0",
+        "pageSize": "1000"
+    }
+
+    print("session:", session)
+    data.update(session)
+
+    url = 'https://'+host+'/api/aiUserDatasapi'
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    result = response.json()
+    if "data" not in result:
+        login(host, api_access_id, api_access_secret)
+        print(session)
+        data.update(session)
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+    # {
+    #     callin_project_sn: "projects|eea500f6b57ba70ebe55cca2fc341581",
+    #     contact: "梁秋平",
+    #     display_phone: "",
+    #     expired: null,
+    #     ext: "1",
+    #     job: "坐席",
+    #     last_login_time: "2023-06-16 08:49:01",
+    #     linkext: "1",
+    #     max_call_count: 15,
+    #     organization_id: 216,
+    #     parent_sn: "mo912143",
+    #     project_sn: "projects|eea500f6b57ba70ebe55cca2fc341581",
+    #     sdzj_phone: "912143",
+    #     sipname: "mo912143002",
+    #     skillgroup_sn: "mo912143002",
+    #     user_name: "mo912143002",
+    #     user_sn: "SYSUSER|cfc70685b3a4f159b4b8d44e59af68b8",
+    #     wangwang: null,
+    #     yd_display_phone: "vos:912143"
+    # }
+    return response.json()
+
+
 def crm_list_all(host, api_access_id, api_access_secret,
                  start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
                  end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"),

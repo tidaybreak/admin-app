@@ -12,7 +12,12 @@ class MCalllog(BusCalllog):
         表格字段属性
         :return:
         """
-        return {
+        search_able = ['phone', 'source', 'started_at', 'talktimes', 'status', 'status_manual', 'operator', 'user_name', 'team_name', 'mark', 'download_time']
+
+        data = {
+            "__uid__": {
+                "show": 0
+            },
             "sn": {
                 "show": 0,
                 "edit": 0
@@ -20,18 +25,21 @@ class MCalllog(BusCalllog):
             "mark": {
                 "edit": 1
             },
-            "__uid__": {
-                "search": 0
-            },
             "update_time": {
-                "show": 0,
-                "search": 0
+                "show": 0
             },
             "create_time": {
-                "title": '获取时间',
-                "search": 0
+                "title": '获取时间'
             }
         }
+        for ent in search_able:
+            if ent in data:
+                data[ent]['search'] = 1
+            else:
+                data[ent] = {
+                    "search": 1
+                }
+        return data
 
     def dict(self, exclude=None):
         """
