@@ -40,10 +40,15 @@ class BaseService(object):
         mod = self.dbaccess.get_model(self.model_name)
         table_name = mod.__tablename__
         columns_info = mod.columns_info()
+        # 主键、表结构
+        self.primary_key_columns = reflection.Inspector.from_engine(engine).get_pk_constraint(table_name)['constrained_columns']
         self.columns = reflection.Inspector.from_engine(engine).get_columns(table_name)
         for idx, val in enumerate(self.columns):
             self.columns[idx]['id'] = idx
             self.columns[idx]['show'] = 1
+            self.columns[idx]['edit'] = 0
+            self.columns[idx]['search'] = 1
+            self.columns[idx]['title'] = val['comment']
             self.columns_list.append(val['name'])
             if val['name'] in columns_info:
                 self.columns[idx] = {**self.columns[idx], **columns_info[val['name']]}
@@ -72,7 +77,10 @@ class BaseService(object):
             return None
 
     def delete(self, id):
-        return self.dbaccess.delete(self.model_name, id)
+        primary_key = 'id'
+        if len(self.primary_key_columns) > 0:
+            primary_key = self.primary_key_columns[0]
+        return self.dbaccess.delete(self.model_name, id, key=primary_key)
 
     def fetch_list(self, page=1, limit=None,
                    query_dict={},

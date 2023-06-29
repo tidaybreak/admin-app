@@ -20,7 +20,7 @@ class JSONEncoder(json.JSONEncoder):
         if hasattr(o, '__visit_name__'):
             return o.__visit_name__
         if isinstance(o, date):
-            return o.strftime("%Y-%m-%d")
+            return o.strftime("%Y-%m-%d %H:%M:%S")
         if isinstance(o, datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
         if isinstance(o, decimal.Decimal):

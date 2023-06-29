@@ -12,7 +12,7 @@ class BusCalllog(Base):
 
     __uid__ = Column(INTEGER(100), index=True, comment='数据源')
     phone = Column(String(20), comment='手机号')
-    sn = Column(String(100), primary_key=True, server_default=text("''"))
+    sn = Column(String(100), primary_key=True, server_default=text("''"), comment='\t流水sn')
     source = Column(String(100), comment='任务编号')
     started_at = Column(DateTime, comment='外呼时间')
     talktimes = Column(INTEGER(11), comment='通话时长')
@@ -20,7 +20,7 @@ class BusCalllog(Base):
     status_manual = Column(String(100), comment='人工分类')
     operator = Column(String(100), comment='话务员')
     team_name = Column(String(100), comment='分组')
-    notes = Column(String(255), comment='备注')
+    mark = Column(String(255), comment='备注')
     download_status = Column(String(20), comment='下载状态')
     update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
     create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')

@@ -74,3 +74,27 @@ def query():
     return response_with(resp.SUCCESS_20000, value={"data": result})
 
 
+@view.route('/<uid>/get', methods=['GET'])
+def get(uid):
+    data = serv.calllog.get(uid)
+    return response_with(resp.SUCCESS_20000, value={"data": data})
+
+
+@view.route('/add', methods=['POST'])
+def add():
+    data = request.get_json()
+    serv.calllog.add(data)
+    return response_with(resp.SUCCESS_20000, value={"data": {}})
+
+
+@view.route('/<uid>/edit', methods=['PUT'])
+def edit(uid):
+    data = request.get_json()
+    serv.calllog.edit(uid, data)
+    return response_with(resp.SUCCESS_20000, value={"data": {}})
+
+
+@view.route('/<uid>/delete', methods=['DELETE'])
+def delete(uid):
+    serv.calllog.delete(uid)
+    return response_with(resp.SUCCESS_20000, value={"data": {}})

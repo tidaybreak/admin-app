@@ -10,6 +10,19 @@ class MMenu(Menu):
         """
         表格字段属性
         :return:
+
+        {
+            "comment": "备注",
+            "default": null,
+            "edit": 1,
+            "id": 10,
+            "name": "notes",
+            "nullable": true,
+            "search": 1,
+            "show": 1,
+            "title": "备注",
+            "type": "VARCHAR"
+        }
         """
         return {}
 

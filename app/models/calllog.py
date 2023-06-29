@@ -14,7 +14,17 @@ class MCalllog(BusCalllog):
         """
         return {
             "sn": {
+                "show": 0,
+                "edit": 0
+            },
+            "notes": {
+                "edit": 1
+            },
+            "update_time": {
                 "show": 0
+            },
+            "create_time": {
+                "title": '获取时间'
             }
         }
 

@@ -25,3 +25,21 @@ class CalllogService(BaseService):
         # }
         data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict", field_info=True)
         return data
+
+    def get(self, id):
+        query = dict()
+        query['sn'] = id
+        result = super().find_one(query, to_type="dict")
+        return result
+
+    def add(self, data):
+        return self.insert(data)
+
+    def edit(self, rid, data):
+        query_dict = {
+            "sn": rid
+        }
+        return super().update(query_dict=query_dict, update_dict=data, insert=False)
+
+    def delete(self, rid):
+        return super().delete(rid)

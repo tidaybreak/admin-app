@@ -9,6 +9,8 @@ import traceback
 from app.utils.utils import resolve_path
 from app.db.elastic_query import elastic_query
 from sqlalchemy import exc
+from sqlalchemy import text
+
 
 # 这里会匹配get_<model>_by_<attr>这种格式的调用
 REGX = re.compile(r'get_([a-z_]+)_by_([a-z_]+)')
@@ -121,10 +123,11 @@ class DBAccess(object):
             traceback.print_exc()
             return False, traceback.format_exc()
 
-    def delete(self, cls_str, id):
+    def delete(self, cls_str, val, key='id'):
         try:
             cls = getattr(models, cls_str)
-            self.db.session.query(cls).filter_by(id=id).delete()
+            #self.db.session.query(cls).filter_by(id=id).delete()
+            self.db.session.query(cls).filter(text(f"{key} = :val")).params(**{key: val}, val=val).delete(synchronize_session=False)
             self.db.session.commit()
             return True, "ok"
         except Exception:

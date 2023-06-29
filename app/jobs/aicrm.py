@@ -41,7 +41,7 @@ def report_update(date=None):
                     'date': k,
                     'agent_name': k2
                 }
-                v2['uid'] = uid
+                v2['__uid__'] = uid
                 serv.report.update(query_dict, v2, insert=True)
     return True, ''
 
@@ -68,13 +68,13 @@ def calllog_update(date=None):
 
         #api = serv.setting.config('api')
         print(val)
-        data = call_ab_log(url, api_access_id, api_access_secret, days=9)
+        data = call_ab_log(url, api_access_id, api_access_secret, days=10)
         print(len(data))
         for ent in data:
             query_dict = {
                 'sn': ent['sn']
             }
-            ent['uid'] = uid
+            ent['__uid__'] = uid
             #serv.calllog.update(query_dict, ent, insert=True)
             serv.calllog.insert(ent, action='add')
         #serv.calllog.bulk_save(data)
