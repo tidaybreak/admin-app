@@ -7,10 +7,10 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Calllog(Base):
-    __tablename__ = 'calllog'
+class BusCalllog(Base):
+    __tablename__ = 'bus_calllog'
 
-    uid = Column(INTEGER(100), index=True, comment='数据源')
+    __uid__ = Column(INTEGER(100), index=True, comment='数据源')
     phone = Column(String(20), comment='手机号')
     sn = Column(String(100), primary_key=True, server_default=text("''"))
     source = Column(String(100), comment='任务编号')
@@ -24,6 +24,38 @@ class Calllog(Base):
     download_status = Column(String(20), comment='下载状态')
     update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
     create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
+
+
+class BusReport(Base):
+    __tablename__ = 'bus_report'
+    __table_args__ = (
+        Index('索引 2', 'date', 'agent_name', unique=True),
+    )
+
+    id = Column(INTEGER(11), primary_key=True, comment='编号')
+    __uid__ = Column(INTEGER(11), comment='数据源')
+    date = Column(Date, comment='日期')
+    agent_name = Column(String(50), comment='坐席名字')
+    company_name = Column(String(100), comment='公司名')
+    outbound_area = Column(String(50), comment='外呼地区')
+    outbound_count = Column(INTEGER(11), comment='外呼数量')
+    connection_rate = Column(DECIMAL(5, 2), comment='接通率')
+    connection_count = Column(INTEGER(11), comment='接通数量')
+    screen_pop_count = Column(INTEGER(11), comment='可弹屏数')
+    screen_pop_rate = Column(DECIMAL(5, 2), comment='可弹屏率')
+    offline_screen_pop_count = Column(INTEGER(11), comment='未在线弹屏')
+    offline_screen_pop_rate = Column(DECIMAL(5, 2), comment='未在线弹屏率')
+    pushed_at = Column(INTEGER(11), comment='弹屏数量')
+    pushed_rate = Column(DECIMAL(5, 2), comment='弹屏率')
+    listened_at = Column(INTEGER(11), comment='监听数量')
+    listened_rate = Column(DECIMAL(5, 2), comment='监听率')
+    intervention_at = Column(INTEGER(11), comment='介入数量')
+    intervention_rate = Column(DECIMAL(5, 2), comment='介入率')
+    customer_count = Column(INTEGER(11), comment='客户数量')
+    connected_customer_success_rate = Column(DECIMAL(5, 2), comment='接通客户成功率')
+    intervention_customer_success_rate = Column(DECIMAL(5, 2), comment='介入客户成功率')
+    create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
+    update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
 
 
 class Dept(Base):
@@ -77,38 +109,6 @@ class Menu(Base):
     update_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 
 
-class Report(Base):
-    __tablename__ = 'report'
-    __table_args__ = (
-        Index('索引 2', 'date', 'agent_name', unique=True),
-    )
-
-    id = Column(INTEGER(11), primary_key=True, comment='编号')
-    uid = Column(INTEGER(11), comment='数据源')
-    date = Column(Date, comment='日期')
-    agent_name = Column(String(50), comment='坐席名字')
-    company_name = Column(String(100), comment='公司名')
-    outbound_area = Column(String(50), comment='外呼地区')
-    outbound_count = Column(INTEGER(11), comment='外呼数量')
-    connection_rate = Column(DECIMAL(5, 2), comment='接通率')
-    connection_count = Column(INTEGER(11), comment='接通数量')
-    screen_pop_count = Column(INTEGER(11), comment='可弹屏数')
-    screen_pop_rate = Column(DECIMAL(5, 2), comment='可弹屏率')
-    offline_screen_pop_count = Column(INTEGER(11), comment='未在线弹屏')
-    offline_screen_pop_rate = Column(DECIMAL(5, 2), comment='未在线弹屏率')
-    pushed_at = Column(INTEGER(11), comment='弹屏数量')
-    pushed_rate = Column(DECIMAL(5, 2), comment='弹屏率')
-    listened_at = Column(INTEGER(11), comment='监听数量')
-    listened_rate = Column(DECIMAL(5, 2), comment='监听率')
-    intervention_at = Column(INTEGER(11), comment='介入数量')
-    intervention_rate = Column(DECIMAL(5, 2), comment='介入率')
-    customer_count = Column(INTEGER(11), comment='客户数量')
-    connected_customer_success_rate = Column(DECIMAL(5, 2), comment='接通客户成功率')
-    intervention_customer_success_rate = Column(DECIMAL(5, 2), comment='介入客户成功率')
-    create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
-    update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
-
-
 class Role(Base):
     __tablename__ = 'roles'
 
@@ -138,7 +138,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(INTEGER(11), primary_key=True)
-    username = Column(String(120))
+    username = Column(String(120), unique=True)
     password = Column(String(120))
     roleIds = Column(String(120))
     nickname = Column(String(100))

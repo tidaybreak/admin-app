@@ -7,7 +7,7 @@ from app.utils import responses as resp
 from app.utils.jwt import Jwt
 from .base import *
 from app.config import cfg
-from app.utils.ciopaas.ciopaas import hm_data
+from flask import session
 from datetime import datetime, timedelta
 import json
 
@@ -21,22 +21,8 @@ view.before_request(Jwt.load_api)
 
 
 @view.route('/pages', methods=['GET', 'POST'])
-@view.route('/query', methods=['GET', 'POST'])
 def query():
-
-    # start = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
-    # end = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 23:59:59")
-    # data = hm_data('ai193.ciopaas.com', 'be00bad65585da7e9202d30cef13a976', '61a460cb2640e62246bb92166d574804', start=start, end=end)
-    # for k, v in data.items():
-    #     for k2, v2 in v.items():
-    #         query_dict = {
-    #             'date': k,
-    #             'agent_name': k2
-    #         }
-    #         serv.report.update(query_dict, v2, insert=True)
-            #serv.report.update()
-
-    #sess = Jwt.payload()
+    # sess = Jwt.payload()
     data = request.get_json()
     query_dict = data['search']
     result = serv.calllog.pages(query_dict, page=data['pageNum'], limit=data['pageSize'])

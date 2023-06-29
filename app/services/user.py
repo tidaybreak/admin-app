@@ -10,6 +10,8 @@ from app.services.base import BaseService
 from jinja2 import Environment, FileSystemLoader
 from passlib.hash import pbkdf2_sha256 as sha256
 from app.utils.utils import str2md5
+from app.utils.jwt import Jwt
+from flask import session
 
 
 class UserService(BaseService):
@@ -32,6 +34,19 @@ class UserService(BaseService):
         query['password'] = str2md5(data['password'] + data['username'])
         query['username'] = data['username']
         result = super().find_one(query, to_type="dict")
+        if result is None:
+            return result
+
+        # 数据源权限默认个人3，有多个取最高的0
+        result['dataScope'] = []
+        for ent in result['roleIds']:
+            role = serv.role.get(ent)
+            if role and role['dataScope'] is not None and role['dataScope'] >= 0:
+                result['dataScope'].append(role['dataScope'])
+        if len(result['dataScope']) == 0:
+            result['dataScope'] = [3]
+        result['dataScope'].sort()
+        result['dataScope'] = result['dataScope'][0]
         return result
 
     def update_password(self, id, password):
@@ -42,6 +57,30 @@ class UserService(BaseService):
         password = str2md5(password + result['username'])
         self.edit(id, {"password": password})
         return result
+
+    def get_token(self, data):
+        result = self.find_by_username_password(data)
+        if result is None:
+            return {"msg": '用户名或密码错误'}
+        else:
+            # loginTime = datetime.datetime.utcnow()
+            # self.admin.update_one(result['username'],{'loginTime':loginTime})
+            jwtdata = {'username': result['username'], 'roles': result['roleIds']}
+            data = {
+                "access_token": Jwt.jwtEncode(jwtdata).decode('utf-8'),
+                "token_type": "bearer",
+                "refresh_token": "",
+                "expires_in": 3599,
+                "scope": "all",
+                "deptId": result['deptId'],
+                "dataScope": result['dataScope'],
+                "userId": result['id'],
+                "username": result['username'],
+                'dataScope': result['dataScope']
+                #"jti": "bbj-qLJWcWhb9O8nOSZIhuvJftk"
+            }
+            session['userinfo'] = data
+            return {"data": data}
 
     def get_info(self, username):
         query = dict()
@@ -65,10 +104,6 @@ class UserService(BaseService):
                 for mid in roles[rid]['menus']:
                     if mid in perms:
                         user_info['perms'] += perms[mid]
-        #result['roles'] = result['roles'].split(',')
-        #result['name'] = result['username']
-        #result['avatar'] = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
-        #result['introduction'] = 'I am a super administrator'
         return user_info
 
     @staticmethod

@@ -1,7 +1,8 @@
 from app.models.sqlacodegen import *
 import copy
 
-class MReport(Report):
+
+class MReport(BusReport):
     """
     可修改配置表
     """

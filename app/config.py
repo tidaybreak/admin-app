@@ -48,7 +48,7 @@ class Config(TraceMixinConfig):
     SESSION_SERIALIZER = msgpack
     SESSION_USE_SIGNER = True
     SESSION_LIFETIME = timedelta(minutes=600)
-    SESSION_KEY_PREFIX = "SESSION:"
+    SESSION_KEY_PREFIX = APP_NAME + "SESSION:"
     SESSION_REDIS = redis
     SESSION_COOKIE_PATH = "/"
     APP_KEY_PREFIX = "%s_app:" % APP_NAME

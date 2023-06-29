@@ -78,6 +78,15 @@ class BaseService(object):
                    query_dict={},
                    to_type="dict",
                    field_info=False):
+
+        # [全局]过滤&加工data 如[上传文件导入]操作
+        op_args = {
+            "schema": self.model_name,
+            'columns_list': self.columns_list
+        }
+        query_dict = self.plugins["operate"].get("HookGlobal",
+                                           lambda x, _: x)(query_dict, op_args)
+
         """
         获取分页数据
         :param field_info:

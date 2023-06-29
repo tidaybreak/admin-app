@@ -4,6 +4,7 @@ from urllib.parse import quote
 import os
 from ..ext import serv
 from .base import *
+from flask import session
 
 __author__ = 'Ti'
 

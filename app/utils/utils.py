@@ -923,3 +923,21 @@ def get_first_and_last_date(year=None, month=None, obj=False):
 
 def rounding(value):
     return Decimal(value).quantize(Decimal("0.01"), rounding="ROUND_HALF_UP")
+
+def export(export_name=None):
+    """
+    标识一个export
+    :return:
+    """
+
+    def wrapper(func):
+        func.__name__ = export_name or func.__name__
+        func.export = True
+
+        @wraps(func)
+        def inner(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return inner
+
+    return wrapper

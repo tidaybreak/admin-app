@@ -9,7 +9,7 @@ from app.jobs.aicrm import report_update, calllog_update
 from app.utils.ciopaas.ciopaas import call_ab_log
 from app.utils import responses as resp
 from app.utils.jwt import Jwt
-from flask import Blueprint, current_app, request
+from flask import Blueprint, current_app, request, session
 from app.config import cfg
 import json
 
@@ -34,6 +34,14 @@ def version():
 
 @view.route("/test")
 def test():
+    print(session.get('xxxada'))
+    session['xxxada'] = {
+        "user": "u",
+        "pass": "p"
+    }
+
+    return response_with(resp.SUCCESS_20000, value={"data": {}})
+
     return response_with(resp.SUCCESS_20000, value={"data": calllog_update()})
 
     host = 'ai193.ciopaas.com'
@@ -56,27 +64,11 @@ def captcha():
 @view.route(cfg.APP_BASE_API + '/oauth/token', methods=['POST'])
 def token():
     data = request.get_json()
-    result = serv.user.find_by_username_password(data)
-    if result is None:
-        return response_with(resp.UNAUTHORIZED_401, value={"msg": '用户名或密码错误'})
+    result = serv.user.get_token(data)
+    if session.get('userinfo'):
+        return response_with(resp.SUCCESS_20000, value=result)
     else:
-        # loginTime = datetime.datetime.utcnow()
-        # self.admin.update_one(result['username'],{'loginTime':loginTime})
-        jwtdata = {'username': result['username'], 'roles': result['roleIds']}
-        data = {
-            "access_token": Jwt.jwtEncode(jwtdata).decode('utf-8'),
-            "token_type": "bearer",
-            "refresh_token": "",
-            "expires_in": 3599,
-            "scope": "all",
-            "deptId": result['deptId'],
-            "dataScope": 0,
-            "userId": result['id'],
-            "username": result['username']
-            #"jti": "bbj-qLJWcWhb9O8nOSZIhuvJftk"
-        }
-        return response_with(resp.SUCCESS_20000, value={"data": data})
-        # return response(data, code=20000, message='登陆成功！')
+        return response_with(resp.UNAUTHORIZED_401, value=result)
 
 
 @view.route(cfg.APP_BASE_API + '/oauth/logout', methods=['POST', 'DELETE'])

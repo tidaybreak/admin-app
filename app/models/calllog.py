@@ -2,7 +2,7 @@ from app.models.sqlacodegen import *
 import copy
 
 
-class MCalllog(Calllog):
+class MCalllog(BusCalllog):
     """
     可修改配置表
     """

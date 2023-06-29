@@ -208,10 +208,13 @@ def init_ext(app):
     form.init_app(app)
     session.init_app(app)
     sup_ctr.init_app(app)
+
     if DEBUG_TOOL:
         debugtool.app = app
         debugtool.init_app(app)
-    app.session_interface.serializer = app.config["SESSION_SERIALIZER"]
+
+    # 改serializer会出现session变成字节session[b'key']
+    # app.session_interface.serializer = app.config["SESSION_SERIALIZER"]
     app.permanent_session_lifetime = app.config["SESSION_LIFETIME"]
 
     # https://blog.csdn.net/weixin_30527875/article/details/114995177
