@@ -98,3 +98,10 @@ def edit(uid):
 def delete(uid):
     serv.calllog.delete(uid)
     return response_with(resp.SUCCESS_20000, value={"data": {}})
+
+
+@view.route('/download', methods=['POST'])
+def download():
+    data = request.get_json()
+    serv.calllog.download(data)
+    return response_with(resp.SUCCESS_20000, value={"data": {}})

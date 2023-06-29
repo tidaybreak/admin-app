@@ -4,6 +4,8 @@ from app.services.base import BaseService
 from passlib.hash import pbkdf2_sha256 as sha256
 from app.utils.utils import str2md5
 from flask import session
+import datetime
+
 
 
 class CalllogService(BaseService):
@@ -43,3 +45,12 @@ class CalllogService(BaseService):
 
     def delete(self, rid):
         return super().delete(rid)
+
+    def download(self, data):
+        new_data = []
+        for sn in data:
+            new_data.append({
+                "sn": sn,
+                "download_time": datetime.datetime.now()
+            })
+        return super().bulk_update(new_data)

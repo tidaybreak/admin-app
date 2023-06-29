@@ -35,12 +35,12 @@ def version():
 @view.route("/test")
 def test():
 
-    return response_with(resp.SUCCESS_20000, value={"data": calllog_update()})
+    #return response_with(resp.SUCCESS_20000, value={"data": calllog_update()})
 
     host = 'ai193.ciopaas.com'
     api_access_id = 'be00bad65585da7e9202d30cef13a976'
     api_access_secret = '61a460cb2640e62246bb92166d574804'
-    data = call_ab_log(host, api_access_id, api_access_secret, days=10)
+    data = call_ab_log(host, api_access_id, api_access_secret, days=12)
     return response_with(resp.SUCCESS_20000, value={"data": data})
 
 

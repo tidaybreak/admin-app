@@ -17,14 +17,19 @@ class MCalllog(BusCalllog):
                 "show": 0,
                 "edit": 0
             },
-            "notes": {
+            "mark": {
                 "edit": 1
             },
+            "__uid__": {
+                "search": 0
+            },
             "update_time": {
-                "show": 0
+                "show": 0,
+                "search": 0
             },
             "create_time": {
-                "title": '获取时间'
+                "title": '获取时间',
+                "search": 0
             }
         }
 

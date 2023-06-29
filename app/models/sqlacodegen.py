@@ -19,9 +19,10 @@ class BusCalllog(Base):
     status = Column(String(100), comment='意向等级')
     status_manual = Column(String(100), comment='人工分类')
     operator = Column(String(100), comment='话务员')
+    user_name = Column(String(100), comment='子账号')
     team_name = Column(String(100), comment='分组')
     mark = Column(String(255), comment='备注')
-    download_status = Column(String(20), comment='下载状态')
+    download_time = Column(DateTime, comment='下载时间')
     update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
     create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
 
