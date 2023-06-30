@@ -61,12 +61,9 @@ class BusDialtaskService(BaseService):
 
     def do_task(self, tasks, oper):
         for task in tasks:
-            uid = task[0]
+            username = task[0]
             dial_task_main_id = task[1]
-            user = serv.user.get(uid)
-            if user is None:
-                continue
-            api = serv.dict.get_dict('API', user['username'])
+            api = serv.dict.get_dict('API', username)
             if api is None:
                 continue
             data = task_action(api, dial_task_main_id, oper)

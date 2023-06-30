@@ -1,5 +1,9 @@
 #!/bin/sh
 
+
+rm -rf ./celerybeat.pid
+rm -rf ./supervisor.sock
+rm -rf ./celerybeat-schedule
 rm -rf ./logs
 mkdir -p ./logs
 export log_dir=./logs
