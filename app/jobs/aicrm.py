@@ -96,7 +96,7 @@ def dialtask_update(date=None):
 
 
 @celery.task
-def dailtask_signature(args):
+def dialtask_signature(args):
     return True, ""
 
 

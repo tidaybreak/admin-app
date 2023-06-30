@@ -33,6 +33,7 @@ class BusDialtask(Base):
     dial_task_main_id = Column(String(255), comment='任务ID')
     __uid__ = Column(INTEGER(11), comment='主账号id')
     user_name = Column(String(255), comment='子账号名称')
+    source = Column(String(255), comment='任务名称')
     dial_task_main_sn = Column(String(255), primary_key=True, server_default=text("''"), comment='任务唯一编号')
     status = Column(String(50), comment='外呼状态；0：发送中 1：已发送 4：暂停发送')
     user_sn = Column(String(255), comment='子账号唯一编号')

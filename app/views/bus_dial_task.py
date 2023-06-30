@@ -56,8 +56,8 @@ def delete(uid):
     return response_with(resp.SUCCESS_20000, value={"data": {}})
 
 
-@view.route('/download', methods=['POST'])
-def download():
+@view.route('/dotask', methods=['POST'])
+def dotask():
     data = request.get_json()
-    serv.bus_dialtask.download(data)
-    return response_with(resp.SUCCESS_20000, value={"data": {}})
+    serv.bus_dialtask.do_task(data['tasks'], data['type'])
+    return response_with(resp.SUCCESS_20000, value={"data": data})

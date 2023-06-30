@@ -231,6 +231,35 @@ def dial_task(host, api_access_id, api_access_secret):
     return response.json()
 
 
+# 操作任务接口（暂停、继续、停止、删除） http://wiki.ciopaas.com:8888/web/#/4?page_id=53
+def do_task(host, api_access_id, api_access_secret, pkeys, oper):
+    current_timestamp = int(time.time())
+    if current_timestamp > session["api_key_expire"] - 60:
+        login(host, api_access_id, api_access_secret)
+
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "pkeys": pkeys,
+        "project_type": 2,  # 任务id：获取营销任务列表接口中返回的dial_task_main_id（注意不是dial_task_main_sn）字段值
+        "oper": oper        # 操作：stop 暂停任务；keepOn 继续任务；failRe 失败重呼；delete 删除任务；end 终止任务
+    }
+
+    print("session:", session)
+    data.update(session)
+
+    url = 'https://'+host+'/api/operateTask'
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
+    result = response.json()
+    if "data" not in result:
+        login(host, api_access_id, api_access_secret)
+        print(session)
+        data.update(session)
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    return response.json()
+
+
 def crm_list_all(host, api_access_id, api_access_secret,
                  start=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
                  end=(datetime.now()).strftime("%Y-%m-%d 00:00:00"),
@@ -395,3 +424,11 @@ def get_user_list(api):
     api_access_id = val[1]
     api_access_secret = val[2]
     return aiUserDatasapi(host, api_access_id, api_access_secret)
+
+
+def task_action(api, pkeys, oper):
+    val = api['value'].split(',')
+    host = val[0]
+    api_access_id = val[1]
+    api_access_secret = val[2]
+    return do_task(host, api_access_id, api_access_secret, pkeys=pkeys, oper=oper)

@@ -1,6 +1,7 @@
 from app.models.sqlacodegen import *
 import copy
 from app.utils.utils import set_form_value
+from app.ext import serv
 
 
 class MBusDialtask(BusDialtask):
@@ -52,8 +53,10 @@ class MBusDialtask(BusDialtask):
                 }
             }
         }
-        data = set_form_value(data, ['__uid__', 'user_name', 'status', 'created_at', 'project_caption'], 'search', 1)
-        data = set_form_value(data, ['dial_task_main_sn', 'user_sn', 'last_modify', 'started_at', 'stopped_at', 'create_time', 'percentage', 'ai_distribution_type', 'project_sn'], 'show', 0)
+
+        data = set_form_value(data, 'sort', 1, ['total_count', 'send_count', 'unsend_count', 'success', 'fail'])
+        data = set_form_value(data, 'search', 1, ['__uid__', 'user_name', 'status', 'created_at', 'project_caption'])
+        data = set_form_value(data, 'show', 0, ['dial_task_main_sn', 'user_sn', 'last_modify', 'started_at', 'stopped_at', 'create_time', 'percentage', 'ai_distribution_type', 'project_sn'])
         return data
 
     def dict(self, exclude=None):
@@ -70,4 +73,6 @@ class MBusDialtask(BusDialtask):
             for exc in exclude:
                 del entity[exc]
 
+        if entity['__uid__']:
+            entity['__uid__'] = serv.user.username(entity['__uid__'])
         return entity

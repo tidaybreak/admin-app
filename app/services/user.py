@@ -106,14 +106,6 @@ class UserService(BaseService):
                         user_info['perms'] += perms[mid]
         return user_info
 
-    @staticmethod
-    def generate_hash(password):
-        return sha256.hash(password)
-
-    @staticmethod
-    def verify_hash(password, hash):
-        return sha256.verify(password, hash)
-
     def pages(self, page=1, limit=None):
         query_dict = {}
         data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict")
@@ -132,9 +124,9 @@ class UserService(BaseService):
                     ent['roleNames'] += [roles[rid]['name']]
         return data
 
-    def get(self, id):
+    def get(self, uid):
         query = dict()
-        query['id'] = id
+        query['id'] = uid
         result = super().find_one(query, to_type="dict")
         return result
 
@@ -165,3 +157,12 @@ class UserService(BaseService):
                 ent["id"], ent["username"]
             ])
         return result
+
+    @cache.memoize(timeout=3600 * 24)
+    def username(self, uid):
+        query = dict()
+        query['id'] = uid
+        data = super().find_one(query, to_type="dict")
+        if data:
+            return data['username']
+        return ''

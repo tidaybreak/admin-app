@@ -6,7 +6,8 @@ from app.utils.utils import str2md5
 from flask import session
 import datetime
 from app.ext import serv, cache
-from app.utils.ciopaas.ciopaas import get_user_list
+from app.utils.ciopaas.ciopaas import get_user_list, task_action
+from app.jobs.aicrm import func_api, fun_dailtask
 
 
 class BusDialtaskService(BaseService):
@@ -57,3 +58,19 @@ class BusDialtaskService(BaseService):
         for ent in data['data']:
             result.append([ent['user_name'], "%s(%s)" % (ent['contact'], ent['user_name'])])
         return result
+
+    def do_task(self, tasks, oper):
+        for task in tasks:
+            uid = task[0]
+            dial_task_main_id = task[1]
+            user = serv.user.get(uid)
+            if user is None:
+                continue
+            api = serv.dict.get_dict('API', user['username'])
+            if api is None:
+                continue
+            data = task_action(api, dial_task_main_id, oper)
+            print(data)
+
+        func_api(fun_dailtask)
+        return {}

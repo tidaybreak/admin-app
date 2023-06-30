@@ -1,5 +1,6 @@
 from app.models.sqlacodegen import *
 import copy
+from app.ext import serv
 
 
 class MCalllog(BusCalllog):
@@ -16,7 +17,8 @@ class MCalllog(BusCalllog):
 
         data = {
             "__uid__": {
-                "show": 0
+                "title": '主账号',
+                "show": 1
             },
             "sn": {
                 "show": 0,
@@ -54,9 +56,7 @@ class MCalllog(BusCalllog):
         if exclude:
             for exc in exclude:
                 del entity[exc]
-        # if entity['perms']:
-        #     entity['perms'] = entity['perms'].split(',')
-        # else:
-        #     entity['perms'] = []
 
+        if entity['__uid__']:
+            entity['__uid__'] = serv.user.username(entity['__uid__'])
         return entity

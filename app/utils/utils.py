@@ -38,7 +38,7 @@ def str2md5(str):
     return md5
 
 
-def set_form_value(data, list, key, val):
+def set_form_value(data, key, val, list):
     for ent in list:
         if ent in data:
             data[ent][key] = val

@@ -11,6 +11,7 @@ from app.utils import responses as resp
 from app.utils.jwt import Jwt
 from flask import Blueprint, current_app, request, session
 from app.config import cfg
+from app.jobs.aicrm import func_api, fun_dailtask
 import json
 
 __author__ = 'Ti'
@@ -34,14 +35,14 @@ def version():
 
 @view.route("/test")
 def test():
-    return response_with(resp.SUCCESS_20000, value={"data": dialtask_update()})
+    return response_with(resp.SUCCESS_20000, value={"data": func_api(fun_dailtask)})
 
     host = 'ai193.ciopaas.com'
     api_access_id = 'be00bad65585da7e9202d30cef13a976'
     api_access_secret = '61a460cb2640e62246bb92166d574804'
     #data = call_ab_log(host, api_access_id, api_access_secret, days=12)
     #data = aiUserDatasapi(host, api_access_id, api_access_secret)
-    data = dail_task(host, api_access_id, api_access_secret)
+    data = dial_task(host, api_access_id, api_access_secret)
     return response_with(resp.SUCCESS_20000, value={"data": data})
 
 
