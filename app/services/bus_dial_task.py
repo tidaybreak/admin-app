@@ -69,5 +69,10 @@ class BusDialtaskService(BaseService):
             data = task_action(api, dial_task_main_id, oper)
             print(data)
 
-        func_api(fun_dailtask)
+            val = api['value'].split(',')
+            url = val[0]
+            api_access_id = val[1]
+            api_access_secret = val[2]
+            fun_dailtask(None, url, api_access_id, api_access_secret)
+        #func_api(fun_dailtask)
         return {}

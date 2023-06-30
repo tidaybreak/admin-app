@@ -63,7 +63,8 @@ def fun_dailtask(uid, url, api_access_id, api_access_secret):
         query_dict = {
             'dial_task_main_sn': ent['dial_task_main_sn']
         }
-        ent['__uid__'] = uid
+        if uid:
+            ent['__uid__'] = uid
         serv.bus_dialtask.update(query_dict, ent, insert=True)
 
 

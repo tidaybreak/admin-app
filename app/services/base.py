@@ -201,7 +201,7 @@ class BaseService(object):
     def insert(self, cond, action='add'):
         data = {}
         for ent in self.columns_list:
-            if ent == '__uid__' or ent in cond:
+            if ent in cond:
                 data[ent] = cond[ent]
         for ent in ['update_time', 'create_time']:
             if ent in data:
@@ -211,7 +211,7 @@ class BaseService(object):
     def update(self, query_dict={}, update_dict={}, insert=False):
         data = {}
         for ent in self.columns_list:
-            if ent == '__uid__' or ent in update_dict:
+            if ent in update_dict:
                 data[ent] = update_dict[ent]
         for ent in ['update_time', 'create_time']:
             if ent in data:
