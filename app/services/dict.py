@@ -25,9 +25,9 @@ class DictService(BaseService):
         data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict")
         return data
 
-    def items_pages(self, code=0, page=1, limit=None):
+    def items_pages(self, typeCode=0, page=1, limit=None):
         query = dict()
-        query['code'] = code
+        query['typeCode'] = typeCode
         result = super().find_one(query, to_type="dict")
 
         data = self.pages(parentId=result['id'])
@@ -78,3 +78,11 @@ class DictService(BaseService):
 
     def delete(self, rid):
         return super().delete(rid)
+
+    def get_dict(self, typeCode, key):
+        query = {
+            "typeCode": typeCode,
+            "name": key
+        }
+        data = super().find_one(query, to_type="dict")
+        return data

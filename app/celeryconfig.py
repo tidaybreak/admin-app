@@ -74,6 +74,16 @@ beat_schedule = {
                 "app.jobs.aicrm.calllog_signature"
             )
         }
+    },
+    "任务更新": {
+        "task": "app.jobs.aicrm.dialtask_update",
+        "schedule": crontab(minute="*/5"),
+        "options": {
+            "queue": "default",
+            "link": signature(
+                "app.jobs.aicrm.dialtask_signature"
+            )
+        }
     }
 }
 

@@ -28,7 +28,7 @@ def login(host, api_access_id, api_access_secret):
         "timestamp": timestamp
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
     # {
     #     "code": 0,
     #     "data": {
@@ -109,7 +109,7 @@ def crm_list(host, api_access_id, api_access_secret,
     data.update(session)
 
     url = 'https://'+host+'/api/crmList'
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
     result = response.json()
     if "data" not in result:
         login(host, api_access_id, api_access_secret)
@@ -142,7 +142,7 @@ def aiUserDatasapi(host, api_access_id, api_access_secret):
         login(host, api_access_id, api_access_secret)
         print(session)
         data.update(session)
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
     # {
     #     callin_project_sn: "projects|eea500f6b57ba70ebe55cca2fc341581",
     #     contact: "梁秋平",
@@ -164,6 +164,70 @@ def aiUserDatasapi(host, api_access_id, api_access_secret):
     #     wangwang: null,
     #     yd_display_phone: "vos:912143"
     # }
+    return response.json()
+
+
+# 任务管理列表 http://wiki.ciopaas.com:8888/web/#/4?page_id=52
+def dial_task(host, api_access_id, api_access_secret):
+    current_timestamp = int(time.time())
+    if current_timestamp > session["api_key_expire"] - 60:
+        login(host, api_access_id, api_access_secret)
+
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "pageIndex": "0",
+        "pageSize": "99999"
+        #"api_key": "TEcAVs9a",
+        #"user_sn": "SYSUSER|cb31d43bc89487492bb0e0dd720705e0",
+        #"start_create_at": "2019-01-22",
+        #"end_create_at": "2019-01-22"
+    }
+
+    print("session:", session)
+    data.update(session)
+
+    url = 'https://'+host+'/api/index'
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
+    result = response.json()
+    if "data" not in result:
+        login(host, api_access_id, api_access_secret)
+        print(session)
+        data.update(session)
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        # {
+        #     "dial_task_main_id":1826,
+        #     "dial_task_main_sn":"dial_task_main_sn|e69342205b8bca83b06401a7705f4b7c",
+        #     "status":"发送中",
+        #     "user_sn":"SYSUSER|cdbe0021b3f5e11f43c9175757b11e2e",
+        #     "user_name":"hln2",
+        #     "team_sn":"ROOT|0008",
+        #     "team_name":"测试",
+        #     "created_at":"2018-05-08 15:40:10",
+        #     "last_modify":"2018-05-08 15:40:10",
+        #     "started_at":"2018-05-08 15:40:10",
+        #     "stoped_at":"2018-05-08 15:41:44",
+        #     "total_count":3,
+        #     "send_count":2,
+        #     "remark":null,
+        #     "ring_groups":null,
+        #     "priority":null,
+        #     "project_sn":"",
+        #     "percentage":null,
+        #     "source":"测试",
+        #     "batch":"hln20180508154010",
+        #     "trunkgroup_sn":null,
+        #     "caller_group":null,
+        #     "mark":null,
+        #     "operator":"hln",
+        #     "project_caption":"测试",
+        #     "parent_sn":"hln",
+        #     "success":"1",
+        #     "fail":"1",
+        #     "stops":"0",
+        #     "unsend_count":1,
+        #     "percent":"50%"
+        # }
     return response.json()
 
 
@@ -323,3 +387,11 @@ def call_ab_log(host, api_access_id, api_access_secret, days=7):
     return data
     for ent in data:
         day = ent["created_at"][:10]
+
+
+def get_user_list(api):
+    val = api['value'].split(',')
+    host = val[0]
+    api_access_id = val[1]
+    api_access_secret = val[2]
+    return aiUserDatasapi(host, api_access_id, api_access_secret)

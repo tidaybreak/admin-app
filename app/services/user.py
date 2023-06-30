@@ -4,7 +4,7 @@ import re
 import os
 import filecmp
 import tempfile
-from app.ext import serv
+from app.ext import serv, cache
 from app.ext import sup_ctr
 from app.services.base import BaseService
 from jinja2 import Environment, FileSystemLoader
@@ -152,3 +152,16 @@ class UserService(BaseService):
 
     def delete(self, rid):
         return super().delete(rid)
+
+    @cache.memoize(timeout=120)
+    def select_user(self):
+        result = []
+        query_dict = {}
+        data = super().fetch_list(query_dict=query_dict, to_type="dict")
+        if data["total"] == 0:
+            return []
+        for ent in data['items']:
+            result.append([
+                ent["id"], ent["username"]
+            ])
+        return result

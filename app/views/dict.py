@@ -57,7 +57,7 @@ def types_pages():
 @view.route('/items/pages', methods=['GET'])
 def items_pages():
     typeCode = request.args.get('typeCode')
-    data = serv.dict.items_pages(code=typeCode)
+    data = serv.dict.items_pages(typeCode=typeCode)
     test = {
         "list": [
             {
@@ -86,7 +86,7 @@ def items_pages():
 
 @view.route('/types/<typeCode>/items', methods=['GET'])
 def items(typeCode):
-    data = serv.dict.items_pages(code=typeCode)
+    data = serv.dict.items_pages(typeCode=typeCode)
     test = [
         {
             "value": "1",

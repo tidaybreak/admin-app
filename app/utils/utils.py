@@ -38,6 +38,16 @@ def str2md5(str):
     return md5
 
 
+def set_form_value(data, list, key, val):
+    for ent in list:
+        if ent in data:
+            data[ent][key] = val
+        else:
+            data[ent] = {
+                key: val
+            }
+    return data
+
 def view_cache_key(*args, **kwargs):
     """
     自定义缓存键:
@@ -71,7 +81,7 @@ def view_cache_key(*args, **kwargs):
                     break
                 continue
 
-    path = hash_dict(request.path + query_string + g.user['um'])
+    path = hash_dict(request.path + query_string)
     return path
 
 

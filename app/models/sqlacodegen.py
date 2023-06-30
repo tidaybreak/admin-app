@@ -22,9 +22,41 @@ class BusCalllog(Base):
     user_name = Column(String(100), comment='子账号')
     team_name = Column(String(100), comment='分组')
     mark = Column(String(255), comment='备注')
-    download_time = Column(DateTime, comment='下载时间')
+    download_time = Column(DateTime, comment='下载时间(首次)')
     update_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
     create_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment='创建时间')
+
+
+class BusDialtask(Base):
+    __tablename__ = 'bus_dialtask'
+
+    dial_task_main_id = Column(String(255), comment='任务ID')
+    __uid__ = Column(INTEGER(11), comment='主账号id')
+    user_name = Column(String(255), comment='子账号名称')
+    dial_task_main_sn = Column(String(255), primary_key=True, server_default=text("''"), comment='任务唯一编号')
+    status = Column(String(50), comment='外呼状态；0：发送中 1：已发送 4：暂停发送')
+    user_sn = Column(String(255), comment='子账号唯一编号')
+    team_sn = Column(String(255), comment='团队编号')
+    team_name = Column(String(255), comment='团队名称')
+    created_at = Column(DateTime, comment='创建时间')
+    last_modify = Column(DateTime, comment='最后修改时间')
+    started_at = Column(DateTime, comment='开始时间')
+    stopped_at = Column(DateTime, comment='结束时间')
+    total_count = Column(INTEGER(11), comment='总呼数量')
+    send_count = Column(INTEGER(11), comment='已呼数量')
+    unsend_count = Column(INTEGER(11), comment='未呼数量')
+    success = Column(INTEGER(11), comment='成功数')
+    fail = Column(INTEGER(11), comment='失败数')
+    stops = Column(INTEGER(11), comment='暂停数')
+    percent = Column(String(50), comment='成功率')
+    project_sn = Column(String(255), comment='项目编号')
+    project_caption = Column(String(255), comment='项目名称')
+    operator = Column(String(255), comment='创建人')
+    percentage = Column(String(255), comment='预测式倍率（6.6版本添加）')
+    task_type = Column(INTEGER(11), comment='任务类型；0：AI外呼，1：人工预测式，2：人工预览式，3：AI预测式（6.6版本添加）')
+    ai_distribution_type = Column(String(255), comment='预览式；1：抢拨，0：平均（6.6版本添加）')
+    create_time = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"), comment='记录创建时间')
+    update_time = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='记录更新')
 
 
 class BusReport(Base):
@@ -81,7 +113,7 @@ class Dict(Base):
     parentId = Column(INTEGER(11), index=True)
     remark = Column(String(100))
     name = Column(String(50))
-    code = Column(String(50), index=True)
+    typeCode = Column(String(50), index=True)
     status = Column(INTEGER(11))
     value = Column(String(500))
     create_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))

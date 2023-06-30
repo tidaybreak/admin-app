@@ -200,9 +200,9 @@ class BaseService(object):
     def insert(self, cond, action='add'):
         data = {}
         for ent in self.columns_list:
-            if ent in cond:
+            if ent == '__uid__' or ent in cond:
                 data[ent] = cond[ent]
-        for ent in ['id', 'update_time', 'create_time']:
+        for ent in ['update_time', 'create_time']:
             if ent in data:
                 del data[ent]
         return self.dbaccess.insert(self.model_name, data, action=action)
@@ -210,9 +210,9 @@ class BaseService(object):
     def update(self, query_dict={}, update_dict={}, insert=False):
         data = {}
         for ent in self.columns_list:
-            if ent in update_dict:
+            if ent == '__uid__' or ent in update_dict:
                 data[ent] = update_dict[ent]
-        for ent in ['id', 'update_time', 'create_time']:
+        for ent in ['update_time', 'create_time']:
             if ent in data:
                 del data[ent]
         return self.dbaccess.update(self.model_name, query_dict, data, insert=insert)
@@ -230,7 +230,7 @@ class BaseService(object):
                 for k in self.columns_list:
                     if k in item:
                         data[k] = item[k]
-                for k2 in ['id', 'update_time', 'create_time']:
+                for k2 in ['update_time', 'create_time']:
                     if k2 in data:
                         del data[k2]
                 if len(data) > 0:

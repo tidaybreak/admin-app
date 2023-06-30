@@ -1,6 +1,7 @@
 # coding:utf-8
 
 import os
+import re
 import traceback
 from flask_mail import Mail
 from redis import Redis, ConnectionPool
@@ -43,7 +44,8 @@ class Service(object):
         """
         services = load_services(self.app)
         for attr, service in list(services.items()):
-            self.__dict__[attr.replace('Service', '').lower()] = service()
+            name = re.sub(r'(?<!^)(?=[A-Z])', '_', attr.replace('Service', '')).lower()
+            self.__dict__[name] = service()
 
 
 class Form(object):
