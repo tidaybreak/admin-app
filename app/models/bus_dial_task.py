@@ -13,6 +13,15 @@ class MBusDialtask(BusDialtask):
         """
         表格字段属性
         :return:
+
+            "user_name": {
+                "type": "SELECT",
+                "type_data": {
+                    "trigger": "__uid__",   // 二级select 触发字段 为空标识一级select
+                    "type": "ciopass_user", // select 查询标识
+                    "data": []
+                }
+            }
         """
         data = {
             "percentage": {
@@ -45,18 +54,38 @@ class MBusDialtask(BusDialtask):
                     "data": []
                 }
             },
+            "project_caption": {
+                "type": "SELECT",
+                "type_data": {
+                    "trigger": "__uid__",
+                    "type": "templatelist",
+                    "data": []
+                }
+            },
             "user_name": {
                 "type": "SELECT",
                 "type_data": {
-                    "type": "",
+                    "trigger": "__uid__",
+                    "type": "ciopass_user",
                     "data": []
                 }
+            },
+            "tels": {
+                "type": "UPLOAD",
+                "form_type": "upload",
+                "title": "号码"
             }
+            # "tels": {
+            #     "type": "VARCHAR",
+            #     "form_type": "textarea",
+            #     "title": "号码"
+            # }
         }
 
+        data = set_form_value(data, 'edit', 1, ['__uid__', 'source', 'project_caption', 'user_name', 'tels'])
         data = set_form_value(data, 'sort', 1, ['total_count', 'send_count', 'unsend_count', 'success', 'fail'])
         data = set_form_value(data, 'search', 1, ['__uid__', 'user_name', 'status', 'created_at', 'project_caption'])
-        data = set_form_value(data, 'show', 0, ['dial_task_main_sn', 'user_sn', 'last_modify', 'started_at', 'stopped_at', 'create_time', 'percentage', 'ai_distribution_type', 'project_sn'])
+        data = set_form_value(data, 'show', 0, ['tels', 'dial_task_main_sn', 'user_sn', 'last_modify', 'started_at', 'stopped_at', 'create_time', 'percentage', 'ai_distribution_type', 'project_sn'])
         return data
 
     def dict(self, exclude=None):

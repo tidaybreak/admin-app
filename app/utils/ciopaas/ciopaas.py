@@ -11,6 +11,27 @@ session = {
 }
 
 
+def req(api, data, host, api_access_id, api_access_secret):
+    current_timestamp = int(time.time())
+    if current_timestamp > session["api_key_expire"] - 60:
+        login(host, api_access_id, api_access_secret)
+
+    headers = {'Content-Type': 'application/json'}
+
+    print("api:%s session:%s" % (api, session))
+    data.update(session)
+
+    url = 'https://'+host + api
+    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
+    result = response.json()
+    if "data" not in result:
+        login(host, api_access_id, api_access_secret)
+        print(session)
+        data.update(session)
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+    return response.json()
+
+
 def login(host, api_access_id, api_access_secret):
     global session
     # url = 'https://ai193.ciopaas.com/api/login'
@@ -66,12 +87,6 @@ def crm_list(host, api_access_id, api_access_secret,
              start=datetime.now().strftime("%Y-%m-%d 00:00:00"),
              end=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d 00:00:00"),
              status=''):
-    current_timestamp = int(time.time())
-    if current_timestamp > session["api_key_expire"] - 60:
-        login(host, api_access_id, api_access_secret)
-
-    headers = {'Content-Type': 'application/json'}
-
     data = {
         "pageIndex": pageIndex,
         "pageSize": pageSize,
@@ -105,44 +120,17 @@ def crm_list(host, api_access_id, api_access_secret,
     }
     if status != '':
         data['status'] = status
-    print("session:", session)
-    data.update(session)
-
-    url = 'https://'+host+'/api/crmList'
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
-    result = response.json()
-    if "data" not in result:
-        login(host, api_access_id, api_access_secret)
-        print(session)
-        data.update(session)
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-    return response.json()
+    return req('/api/crmList', data, host, api_access_id, api_access_secret)
 
 
 # 子账号列表 http://wiki.ciopaas.com:8888/web/#/4?page_id=31
 def aiUserDatasapi(host, api_access_id, api_access_secret):
-    current_timestamp = int(time.time())
-    if current_timestamp > session["api_key_expire"] - 60:
-        login(host, api_access_id, api_access_secret)
-
-    headers = {'Content-Type': 'application/json'}
-
     data = {
         "pageIndex": "0",
         "pageSize": "1000"
     }
+    return req('/api/aiUserDatasapi', data, host, api_access_id, api_access_secret)
 
-    print("session:", session)
-    data.update(session)
-
-    url = 'https://'+host+'/api/aiUserDatasapi'
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    result = response.json()
-    if "data" not in result:
-        login(host, api_access_id, api_access_secret)
-        print(session)
-        data.update(session)
-        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
     # {
     #     callin_project_sn: "projects|eea500f6b57ba70ebe55cca2fc341581",
     #     contact: "梁秋平",
@@ -164,17 +152,10 @@ def aiUserDatasapi(host, api_access_id, api_access_secret):
     #     wangwang: null,
     #     yd_display_phone: "vos:912143"
     # }
-    return response.json()
 
 
 # 任务管理列表 http://wiki.ciopaas.com:8888/web/#/4?page_id=52
 def dial_task(host, api_access_id, api_access_secret):
-    current_timestamp = int(time.time())
-    if current_timestamp > session["api_key_expire"] - 60:
-        login(host, api_access_id, api_access_secret)
-
-    headers = {'Content-Type': 'application/json'}
-
     data = {
         "pageIndex": "0",
         "pageSize": "99999"
@@ -183,81 +164,85 @@ def dial_task(host, api_access_id, api_access_secret):
         #"start_create_at": "2019-01-22",
         #"end_create_at": "2019-01-22"
     }
-
-    print("session:", session)
-    data.update(session)
-
-    url = 'https://'+host+'/api/index'
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
-    result = response.json()
-    if "data" not in result:
-        login(host, api_access_id, api_access_secret)
-        print(session)
-        data.update(session)
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        # {
-        #     "dial_task_main_id":1826,
-        #     "dial_task_main_sn":"dial_task_main_sn|e69342205b8bca83b06401a7705f4b7c",
-        #     "status":"发送中",
-        #     "user_sn":"SYSUSER|cdbe0021b3f5e11f43c9175757b11e2e",
-        #     "user_name":"hln2",
-        #     "team_sn":"ROOT|0008",
-        #     "team_name":"测试",
-        #     "created_at":"2018-05-08 15:40:10",
-        #     "last_modify":"2018-05-08 15:40:10",
-        #     "started_at":"2018-05-08 15:40:10",
-        #     "stoped_at":"2018-05-08 15:41:44",
-        #     "total_count":3,
-        #     "send_count":2,
-        #     "remark":null,
-        #     "ring_groups":null,
-        #     "priority":null,
-        #     "project_sn":"",
-        #     "percentage":null,
-        #     "source":"测试",
-        #     "batch":"hln20180508154010",
-        #     "trunkgroup_sn":null,
-        #     "caller_group":null,
-        #     "mark":null,
-        #     "operator":"hln",
-        #     "project_caption":"测试",
-        #     "parent_sn":"hln",
-        #     "success":"1",
-        #     "fail":"1",
-        #     "stops":"0",
-        #     "unsend_count":1,
-        #     "percent":"50%"
-        # }
-    return response.json()
+    return req('/api/index', data, host, api_access_id, api_access_secret)
+    # {
+    #     "dial_task_main_id":1826,
+    #     "dial_task_main_sn":"dial_task_main_sn|e69342205b8bca83b06401a7705f4b7c",
+    #     "status":"发送中",
+    #     "user_sn":"SYSUSER|cdbe0021b3f5e11f43c9175757b11e2e",
+    #     "user_name":"hln2",
+    #     "team_sn":"ROOT|0008",
+    #     "team_name":"测试",
+    #     "created_at":"2018-05-08 15:40:10",
+    #     "last_modify":"2018-05-08 15:40:10",
+    #     "started_at":"2018-05-08 15:40:10",
+    #     "stoped_at":"2018-05-08 15:41:44",
+    #     "total_count":3,
+    #     "send_count":2,
+    #     "remark":null,
+    #     "ring_groups":null,
+    #     "priority":null,
+    #     "project_sn":"",
+    #     "percentage":null,
+    #     "source":"测试",
+    #     "batch":"hln20180508154010",
+    #     "trunkgroup_sn":null,
+    #     "caller_group":null,
+    #     "mark":null,
+    #     "operator":"hln",
+    #     "project_caption":"测试",
+    #     "parent_sn":"hln",
+    #     "success":"1",
+    #     "fail":"1",
+    #     "stops":"0",
+    #     "unsend_count":1,
+    #     "percent":"50%"
+    # }
 
 
 # 操作任务接口（暂停、继续、停止、删除） http://wiki.ciopaas.com:8888/web/#/4?page_id=53
 def do_task(host, api_access_id, api_access_secret, pkeys, oper):
-    current_timestamp = int(time.time())
-    if current_timestamp > session["api_key_expire"] - 60:
-        login(host, api_access_id, api_access_secret)
-
-    headers = {'Content-Type': 'application/json'}
-
     data = {
         "pkeys": pkeys,
         "project_type": 2,  # 任务id：获取营销任务列表接口中返回的dial_task_main_id（注意不是dial_task_main_sn）字段值
         "oper": oper        # 操作：stop 暂停任务；keepOn 继续任务；failRe 失败重呼；delete 删除任务；end 终止任务
     }
+    return req('/api/operateTask', data, host, api_access_id, api_access_secret)
 
-    print("session:", session)
-    data.update(session)
 
-    url = 'https://'+host+'/api/operateTask'
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=30)
-    result = response.json()
-    if "data" not in result:
-        login(host, api_access_id, api_access_secret)
-        print(session)
-        data.update(session)
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+# 操作任务接口（暂停、继续、停止、删除） http://wiki.ciopaas.com:8888/web/#/4?page_id=53
+def addJsonOfAsync(host, api_access_id, api_access_secret, source, project_sn, ai_user_sn, client_info_json):
+    data = {
+        "source": source, #"任务名称",
+        "project_sn": project_sn, # "projects| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ",
+        "ai_user_sn": ai_user_sn, # "SYSUSER| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ",
+        "is_zidong": "on",
+        "client_info_json": client_info_json,
+        #     {
+        #     "data": [
+        #         {
+        #             "姓名": "xxxx",
+        #             "电话": "12345678901",
+        #             "地址": "深圳",
+        #             "公司名称": "xxxx",
+        #             "备注": "xxxx"
+        #         }
+        #     ]
+        #   },
+        "is_auto_fail_recall": 1,
+        "total_fail_recall_times": 1,
+        "fail_recall_interval": 1,
+        "fail_recall_of_reason": "关机,来电提醒,稍后再拨,停机,无法接通,正在通话中,用户正忙,用户拒接,欠费,无人应答,其他"
+    }
+    return req('/api/addJsonOfAsync', data, host, api_access_id, api_access_secret)
 
-    return response.json()
+
+# 话术模板列表 http://wiki.ciopaas.com:8888/web/#/4?page_id=57
+def templatelist(host, api_access_id, api_access_secret):
+    data = {
+        "pageSize": "9999"
+    }
+    return req('/api/templatelist', data, host, api_access_id, api_access_secret)
 
 
 def crm_list_all(host, api_access_id, api_access_secret,
@@ -414,16 +399,6 @@ def call_ab_log(host, api_access_id, api_access_secret, days=7):
     date_hm = dict()
     count = dict()
     return data
-    for ent in data:
-        day = ent["created_at"][:10]
-
-
-def get_user_list(api):
-    val = api['value'].split(',')
-    host = val[0]
-    api_access_id = val[1]
-    api_access_secret = val[2]
-    return aiUserDatasapi(host, api_access_id, api_access_secret)
 
 
 def task_action(api, pkeys, oper):

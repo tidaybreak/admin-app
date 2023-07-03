@@ -39,8 +39,8 @@ def get(uid):
 @view.route('/add', methods=['POST'])
 def add():
     data = request.get_json()
-    serv.bus_dialtask.add(data)
-    return response_with(resp.SUCCESS_20000, value={"data": {}})
+    data = serv.bus_dialtask.add_task(data)
+    return response_with(resp.SUCCESS_20000, value={"data": data})
 
 
 @view.route('/<uid>/edit', methods=['PUT'])

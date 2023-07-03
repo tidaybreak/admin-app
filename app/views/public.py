@@ -6,7 +6,8 @@ from app.utils.utils import res_json
 from celery import chain
 from app.utils.responses import response_with
 from app.jobs.aicrm import report_update, calllog_update, dialtask_update
-from app.utils.ciopaas.ciopaas import call_ab_log, aiUserDatasapi, dial_task
+from app.utils.ciopaas import ciopaas as ciopaaas
+
 from app.utils import responses as resp
 from app.utils.jwt import Jwt
 from flask import Blueprint, current_app, request, session
@@ -42,7 +43,8 @@ def test():
     api_access_secret = '61a460cb2640e62246bb92166d574804'
     #data = call_ab_log(host, api_access_id, api_access_secret, days=12)
     #data = aiUserDatasapi(host, api_access_id, api_access_secret)
-    data = dial_task(host, api_access_id, api_access_secret)
+    data = ciopaaas.dial_task(host, api_access_id, api_access_secret)
+    #data = ciopaaas.templatelist(host, api_access_id, api_access_secret)
     return response_with(resp.SUCCESS_20000, value={"data": data})
 
 
@@ -70,22 +72,3 @@ def token():
 def authenticate_logout():
     return response_with(resp.SUCCESS_20000, value={"data": {}})
 
-
-@view.route('/list', methods=['GET'])
-def authenticate_list():
-    p = Jwt.authHeader(request)
-    res = json.loads(p)
-    if res['code'] == 20000:
-        data = {
-            "total": 1,
-            "items": [{
-                "order_no": "C6516F0C-DC2F-aEc9-7A15-9DD55F4e7A4B",
-                "timestamp": 159482548419,
-                "username": "Laura Thomas",
-                "price": 13183,
-                "status": "success"
-            }]
-        }
-        return response_with(resp.SUCCESS_20000, value={"data": data})
-    else:
-        return p

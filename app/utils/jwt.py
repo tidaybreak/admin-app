@@ -56,7 +56,7 @@ class Jwt:
     def authHeader(request):
         token = request.headers.get('Authorization')
         if token:
-            token = token.replace('bearer ', '')
+            token = token.replace('bearer ', '').replace('"', '')
         #token = request.headers.get('X-Token') or request.cookies.get('Admin-Token')
         p = Jwt.jwtDecode(token)
         if p == 50008:
@@ -80,7 +80,7 @@ class Jwt:
     def payload():
         token = request.headers.get('Authorization')
         if token:
-            token = token.replace('bearer ', '')
+            token = token.replace('bearer ', '').replace('"', '')
         #token = request.headers.get('X-Token') or request.cookies.get('Admin-Token')
         p = Jwt.jwtDecode(token)
         return p

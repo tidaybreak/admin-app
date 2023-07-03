@@ -1,13 +1,12 @@
 __author__ = 'Ti'
 
 from app.services.base import BaseService
-from passlib.hash import pbkdf2_sha256 as sha256
-from app.utils.utils import str2md5
-from flask import session
-import datetime
+from app.utils import utils as utils
+from app.utils.ciopaas import ciopaas as ciopaaas
+from app.jobs.aicrm import fun_dailtask
 from app.ext import serv, cache
-from app.utils.ciopaas.ciopaas import get_user_list, task_action
-from app.jobs.aicrm import func_api, fun_dailtask
+from app.config import cfg
+import datetime, os, time
 
 
 class BusDialtaskService(BaseService):
@@ -45,18 +44,39 @@ class BusDialtaskService(BaseService):
             })
         return super().bulk_update(new_data)
 
-    @cache.memoize(timeout=120)
-    def select_child_account(self, uid):
+    def get_api_by_uid(self, uid):
         user = serv.user.get(uid)
         if user is None:
-            return []
+            return None
         api = serv.dict.get_dict('API', user['username'])
         if api is None:
+            return None
+        val = api['value'].split(',')
+        host = val[0]
+        api_access_id = val[1]
+        api_access_secret = val[2]
+        return host, api_access_id, api_access_secret
+
+    @cache.memoize(timeout=120)
+    def select_child_account(self, uid):
+        api = self.get_api_by_uid(uid)
+        if api is None:
             return []
-        data = get_user_list(api)
+        data = ciopaaas.aiUserDatasapi(api[0], api[1], api[2])
         result = []
         for ent in data['data']:
-            result.append([ent['user_name'], "%s(%s)" % (ent['contact'], ent['user_name'])])
+            result.append([ent['user_sn'], "%s(%s)" % (ent['contact'], ent['user_name'])])
+        return result
+
+    @cache.memoize(timeout=120)
+    def select_templatelist(self, uid):
+        api = self.get_api_by_uid(uid)
+        if api is None:
+            return []
+        data = ciopaaas.templatelist(api[0], api[1], api[2])
+        result = []
+        for ent in data['data']:
+            result.append([ent['sn'], ent['project_caption']])
         return result
 
     def do_task(self, tasks, oper):
@@ -66,7 +86,7 @@ class BusDialtaskService(BaseService):
             api = serv.dict.get_dict('API', username)
             if api is None:
                 continue
-            data = task_action(api, dial_task_main_id, oper)
+            data = ciopaaas.task_action(api, dial_task_main_id, oper)
             print(data)
 
             val = api['value'].split(',')
@@ -74,5 +94,31 @@ class BusDialtaskService(BaseService):
             api_access_id = val[1]
             api_access_secret = val[2]
             fun_dailtask(None, url, api_access_id, api_access_secret)
-        #func_api(fun_dailtask)
         return {}
+
+    def add_task(self, data):
+        api = self.get_api_by_uid(data['__uid__'])
+        if api is None:
+            return []
+
+        file_path = os.path.join(cfg.GLOBAL_TEMP_PATH, data['tels'])
+        tels = utils.parse_import_xls(file_path)
+        client_info_json = {
+                               "data": [
+                               ]
+                           }
+        for ent in tels[1]:
+            client_info_json['data'].append(
+                {
+                    "姓名": ent[0],
+                    "电话": ent[1],
+                    "地址": ent[2],
+                    "公司名称": ent[3],
+                    "备注": ent[4]
+                }
+            )
+
+        data = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'], data['user_name'], client_info_json)
+        time.slppe(5000)
+        fun_dailtask(None, api[0], api[1], api[2])
+        return data

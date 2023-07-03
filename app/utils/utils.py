@@ -951,3 +951,86 @@ def export(export_name=None):
         return inner
 
     return wrapper
+
+
+def parse_import_xls(file_path):
+    wb = openpyxl.load_workbook(file_path, data_only=True, read_only=True)
+    st = wb.get_sheet_by_name(wb.active.title)
+    # 记录表格下标，用来判断是否结束
+    table_idx_is_end = {}
+    headers = []
+    idx = 0
+    data_from = 2
+    for r in st[1]:
+        if r.value is not None:
+            headers.append(str(r.value))
+            if idx - 1 in table_idx_is_end:
+                table_idx_is_end[idx - 1] = True
+        else:
+            # 出现空值的情况，认为是表格
+            if idx - 1 not in table_idx_is_end:
+                table_idx_is_end[idx - 1] = False
+            table_idx_is_end[idx] = False
+            data_from = 3
+        idx += 1
+        if idx > 100:
+            raise Exception("超过100个字段，请检查excel表头是否正确！")
+    if len(table_idx_is_end) > 0:
+        table_idx_is_end[list(table_idx_is_end)[-1]] = True
+
+    rows = []
+    idx_row = 0
+    total = st.max_row
+    for row in st:
+        idx_row += 1
+        if idx_row < data_from:
+            continue
+
+        cls = []
+        idx = 0
+        table_data = [None, [[]]]
+        for cl in row:
+            if idx in table_idx_is_end:
+                if table_data[0] is None:
+                    table_data[0] = cl.value or ""
+                else:
+                    if isinstance(cl.value, datetime):
+                        table_data[1][0].append(cl.value.strftime('%Y-%m-%d %H:%M:%S'))
+                    else:
+                        table_data[1][0].append(cl.value)
+
+                if table_idx_is_end[idx]:
+                    if any(table_data[1][0]):
+                        cls.append(table_data)
+                    else:
+                        cls.append([None, []])
+                    table_data = [None, [[]]]
+            else:
+                if isinstance(cl.value, datetime):
+                    cls.append(cl.value.strftime('%Y-%m-%d %H:%M:%S'))
+                else:
+                    cls.append(cl.value)
+
+            idx += 1
+            if idx > 100:
+                raise Exception("超过100个字段，请检查excel表头是否正确！")
+
+        if any(cls):
+            # 如果行是纯表格数据 插入到所属行(上一行)
+            is_table_data = True
+            for v in cls:
+                if v is not None and not isinstance(v, list):
+                    is_table_data = False
+                    break
+            if is_table_data:
+                idx = 0
+                for v in cls:
+                    if v is not None and len(v[1]) > 0:
+                        rows[-1][idx][1].append(v[1][0])
+                    idx += 1
+            else:
+                rows.append(cls)
+        else:
+            # 出现连续空值的情况，退出循环
+            break
+    return headers, rows

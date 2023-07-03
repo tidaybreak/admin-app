@@ -53,6 +53,10 @@ class BaseService(object):
             self.columns_list.append(val['name'])
             if val['name'] in columns_info:
                 self.columns[idx] = {**self.columns[idx], **columns_info[val['name']]}
+        for key in columns_info:
+            if key not in self.columns_list:
+                columns_info[key]['name'] = key
+                self.columns.append(columns_info[key])
 
     @staticmethod
     def load_plugins(app):
