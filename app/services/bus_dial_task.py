@@ -112,6 +112,8 @@ class BusDialtaskService(BaseService):
         if 'tels_amount' in data and data['tels_amount'] > 0:
             if 'phone_index' not in user['data']:
                 user['data']['phone_index'] = 0
+            if user['data']['phone_index'] > 5300000:
+                user['data']['phone_index'] = 0
 
             query = {
                         "filter": {
