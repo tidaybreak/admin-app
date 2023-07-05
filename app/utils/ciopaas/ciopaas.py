@@ -216,7 +216,7 @@ def addJsonOfAsync(host, api_access_id, api_access_secret, source, project_sn, a
         "source": source, #"任务名称",
         "project_sn": project_sn, # "projects| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ",
         "ai_user_sn": ai_user_sn, # "SYSUSER| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ",
-        "is_zidong": "on",
+        #"is_zidong": "on",
         "client_info_json": client_info_json,
         #     {
         #     "data": [

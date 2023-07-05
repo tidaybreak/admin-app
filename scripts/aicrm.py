@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-load_dotenv('.env')
+load_dotenv('../.env')
 
 # 遍历文件夹下的所有Excel文件
 folder_path = 'aicrm'  # 文件夹路径
@@ -23,7 +23,7 @@ for file in os.listdir(folder_path):
 
         # 将数据插入到MySQL数据库中的表中
         table_name = 'bus_phone'  # 表名
-        df.to_sql(name=table_name, con=conn, if_exists='append', index=True, index_label='id')
+        df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
 
 # 关闭数据库连接
 conn.close()

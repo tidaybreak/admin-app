@@ -2,6 +2,10 @@ __author__ = 'Ti'
 
 import os
 import threading
+
+import sqlalchemy
+import time
+
 from app import ext
 from app.db.dbaccess import DBAccess
 from app.loader import load_plugins
@@ -88,10 +92,13 @@ class BaseService(object):
             primary_key = self.primary_key_columns[0]
         return self.dbaccess.delete(self.model_name, id, key=primary_key)
 
-    def fetch_list(self, page=1, limit=None,
+    def fetch_list(self,
+                   page=1,
+                   limit=None,
                    query_dict={},
                    to_type="dict",
-                   field_info=False):
+                   field_info=False,
+                   select=[]):
 
         # [全局]过滤&加工data 如[上传文件导入]操作
         op_args = {
@@ -105,19 +112,19 @@ class BaseService(object):
                           limit=limit,
                           query_dict=query_dict,
                           to_type=to_type,
-                          field_info=field_info)
+                          field_info=field_info,
+                          select=select)
 
     def fetch(self, page=1,
               limit=None,
-              query_dict={
-                  "filter": {
-                  }
-              },
+              query_dict={"filter": {}},
               to_type="dict",
-              field_info=False):
+              field_info=False,
+              select=[]):
 
         """
         获取分页数据
+        :param select:
         :param field_info:
         :param page:
         :param limit:
@@ -186,9 +193,16 @@ class BaseService(object):
             query = self.dbaccess.elastic_query(self.model(), query_dict)
             total = query.count()
 
+            # print("start datetime:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
             if limit is not None:
                 query = query.offset((page - 1) * limit).limit(limit)
-            entities = query.all()
+            if len(select) == 0:
+                entities = query.all()
+            else:
+                entities = query.options(
+                    sqlalchemy.orm.load_only(*select)
+                ).all()
+            # print("end datetime:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         except Exception as e:
             # print("db error:", e)
             raise e
@@ -203,19 +217,21 @@ class BaseService(object):
                 item = entity.dict()
                 if mkey in item:
                     data[item[mkey]] = item
-        else:
+        elif to_type[0] == 'dict':
             items = []
             for entity in entities:
-                if to_type[0] == 'dict':
-                    items.append(entity.dict())
-                else:
-                    items.append(entity)
+                items.append(entity.dict())
             data = {
                 "total": total,
                 "items": items
             }
-            if field_info:
-                data["columns"] = self.columns
+        else:
+            data = {
+                "total": total,
+                "items": entities
+            }
+        if field_info:
+            data["columns"] = self.columns
         return data
 
     def insert(self, cond, action='add'):
@@ -273,6 +289,12 @@ class BaseService(object):
         return result
 
     def execute(self, raw_sql, params):
+        """
+        效率高 2-3倍
+        :param raw_sql:
+        :param params:
+        :return:
+        """
         self.mutex.acquire()
         result = None
         try:

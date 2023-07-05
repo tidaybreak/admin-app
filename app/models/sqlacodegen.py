@@ -1,6 +1,6 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, Date, DateTime, Index, String, TIMESTAMP, Text, text
-from sqlalchemy.dialects.mysql import INTEGER
+from sqlalchemy import Column, DECIMAL, Date, DateTime, Index, JSON, String, TIMESTAMP, Text, text
+from sqlalchemy.dialects.mysql import INTEGER, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -50,14 +50,25 @@ class BusDialtask(Base):
     fail = Column(INTEGER(11), comment='失败数')
     stops = Column(INTEGER(11), comment='暂停数')
     percent = Column(String(50), comment='成功率')
-    project_sn = Column(String(255), comment='项目编号')
-    project_caption = Column(String(255), comment='项目名称')
+    project_sn = Column(String(255), comment='话术模板sn')
+    project_caption = Column(String(255), comment='话术模板')
     operator = Column(String(255), comment='创建人')
     percentage = Column(String(255), comment='预测式倍率（6.6版本添加）')
     task_type = Column(INTEGER(11), comment='任务类型；0：AI外呼，1：人工预测式，2：人工预览式，3：AI预测式（6.6版本添加）')
     ai_distribution_type = Column(String(255), comment='预览式；1：抢拨，0：平均（6.6版本添加）')
     create_time = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"), comment='记录创建时间')
     update_time = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='记录更新')
+
+
+class BusPhone(Base):
+    __tablename__ = 'bus_phone'
+
+    id = Column(INTEGER(11), primary_key=True)
+    mobile = Column(String(50), unique=True)
+    connected = Column(TINYINT(4))
+    phone = Column(String(50))
+    field = Column(String(50))
+    batch_number = Column(String(50))
 
 
 class BusReport(Base):
@@ -180,6 +191,7 @@ class User(Base):
     genderLabel = Column(String(10))
     avatar = Column(String(100))
     email = Column(String(100))
+    data = Column(JSON)
     status = Column(INTEGER(11))
     deptId = Column(INTEGER(11))
     create_time = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))

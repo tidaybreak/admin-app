@@ -14,9 +14,9 @@ class BusDialtaskService(BaseService):
         super(BusDialtaskService, self).__init__()
 
     def pages(self, query_dict={
-                                "filter": {
-                                }
-                            }, page=1, limit=None, field_info=True):
+        "filter": {
+        }
+    }, page=1, limit=None, field_info=True):
         data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict", field_info=field_info)
         return data
 
@@ -104,24 +104,75 @@ class BusDialtaskService(BaseService):
         if api is None:
             return []
 
-        file_path = os.path.join(cfg.GLOBAL_TEMP_PATH, data['tels'])
-        tels = utils.parse_import_xls(file_path)
         client_info_json = {
-                               "data": [
-                               ]
-                           }
-        for ent in tels[1]:
-            client_info_json['data'].append(
-                {
-                    #"姓名": ent[0],
-                    "电话": ent[1]
-                    #"地址": ent[2],
-                    #"公司名称": ent[3],
-                    #"备注": ent[4]
-                }
-            )
-        #print(client_info_json)
-        result = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'], data['user_name'], client_info_json)
+            "data": [
+            ]
+        }
+        user = serv.user.get(data['__uid__'])
+        if 'tels_amount' in data and data['tels_amount'] > 0:
+            if 'phone_index' not in user['data']:
+                user['data']['phone_index'] = 0
+
+            query = {
+                        "filter": {
+                            "and": {
+                                "id": {
+                                    "gt": user['data']['phone_index'],
+                                    "lte": user['data']['phone_index'] + data['tels_amount']
+                                }
+                            }
+                        }
+                    }
+            print("xstart datetime:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+            phones = serv.bus_phone.execute("select mobile from bus_phone where id > %d and id <= %d" % (user['data']['phone_index'], user['data']['phone_index'] + data['tels_amount']), "")
+            print("xend datetime:", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+            for ent in phones:
+                client_info_json['data'].append(
+                    {
+                        # "姓名": ent[0],
+                        "电话": ent[0]
+                        # "地址": ent[2],
+                        # "公司名称": ent[3],
+                        # "备注": ent[4]
+                    }
+                )
+
+            #phones = serv.bus_phone.fetch(query_dict=query, to_type="obj", select=["mobile"])
+            # for ent in phones['items']:
+            #     client_info_json['data'].append(
+            #         {
+            #             # "姓名": ent[0],
+            #             "电话": ent.mobile
+            #             # "地址": ent[2],
+            #             # "公司名称": ent[3],
+            #             # "备注": ent[4]
+            #         }
+            #     )
+        else:
+            file_path = os.path.join(cfg.GLOBAL_TEMP_PATH, data['tels'])
+            tels = utils.parse_import_xls(file_path)
+
+            for ent in tels[1]:
+                client_info_json['data'].append(
+                    {
+                        # "姓名": ent[0],
+                        "电话": ent[1]
+                        # "地址": ent[2],
+                        # "公司名称": ent[3],
+                        # "备注": ent[4]
+                    }
+                )
+        # print(client_info_json)
+        result = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'],
+                                         data['user_name'], client_info_json)
+        if 'tels_amount' in data and data['tels_amount'] > 0 and result['code'] == 0:
+            user['data'] = {
+                "phone_index": user['data']['phone_index'] + data['tels_amount']
+            }
+            serv.user.edit(data['__uid__'], user)
+
         time.sleep(5)
         fun_dailtask(data['__uid__'], api[0], api[1], api[2])
+        #return {}
         return result

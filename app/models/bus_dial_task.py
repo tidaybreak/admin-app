@@ -74,15 +74,17 @@ class MBusDialtask(BusDialtask):
                 "type": "UPLOAD",
                 "form_type": "upload",
                 "title": "号码"
+            },
+            "tels_amount": {
+                "type": "INTEGER",
+                "title": "号码数量",
+                "type_data": {
+                    "max": 100000
+                }
             }
-            # "tels": {
-            #     "type": "VARCHAR",
-            #     "form_type": "textarea",
-            #     "title": "号码"
-            # }
         }
 
-        data = set_form_value(data, 'edit', 1, ['__uid__', 'source', 'project_caption', 'user_name', 'tels'])
+        data = set_form_value(data, 'edit', 1, ['__uid__', 'source', 'project_caption', 'user_name', 'tels', 'tels_amount'])
         data = set_form_value(data, 'sort', 1, ['total_count', 'send_count', 'unsend_count', 'success', 'fail'])
         data = set_form_value(data, 'search', 1, ['__uid__', 'user_name', 'status', 'created_at', 'project_caption'])
         data = set_form_value(data, 'show', 0, ['tels', 'dial_task_main_sn', 'user_sn', 'last_modify', 'started_at', 'stopped_at', 'create_time', 'percentage', 'ai_distribution_type', 'project_sn'])

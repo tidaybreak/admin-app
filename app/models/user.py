@@ -49,4 +49,6 @@ class MUser(User):
         else:
             entity['roleIds'] = []
         del entity['password']
+        if entity['data'] is None:
+            entity['data'] = {}
         return entity
