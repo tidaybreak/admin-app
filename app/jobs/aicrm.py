@@ -101,7 +101,7 @@ def calllog_signature(args):
 @celery.task
 def dialtask_update(date=None):
     dial_task_main_sn = []
-    tasks = serv.bus_dialtask.pages()
+    tasks = serv.bus_dialtask.fetch()
     for ent in tasks['items']:
         dial_task_main_sn.append(ent['dial_task_main_sn'])
     new_tasks = func_api(fun_dailtask)

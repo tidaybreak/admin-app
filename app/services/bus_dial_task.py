@@ -122,6 +122,6 @@ class BusDialtaskService(BaseService):
             )
         #print(client_info_json)
         result = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'], data['user_name'], client_info_json)
-        time.sleep(8)
+        time.sleep(5)
         fun_dailtask(data['__uid__'], api[0], api[1], api[2])
         return result

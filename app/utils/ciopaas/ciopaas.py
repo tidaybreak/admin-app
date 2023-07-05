@@ -229,10 +229,10 @@ def addJsonOfAsync(host, api_access_id, api_access_secret, source, project_sn, a
         #         }
         #     ]
         #   },
-        "is_auto_fail_recall": 1,
-        "total_fail_recall_times": 1,
-        "fail_recall_interval": 1,
-        "fail_recall_of_reason": "关机,来电提醒,稍后再拨,停机,无法接通,正在通话中,用户正忙,用户拒接,欠费,无人应答,其他"
+        "is_auto_fail_recall": 0,
+        "total_fail_recall_times": 0,
+        "fail_recall_interval": 0,
+        "fail_recall_of_reason": ""
     }
     return req('/api/addJsonOfAsync', data, host, api_access_id, api_access_secret)
 

@@ -41,7 +41,8 @@ class BaseService(object):
         table_name = mod.__tablename__
         columns_info = mod.columns_info()
         # 主键、表结构
-        self.primary_key_columns = reflection.Inspector.from_engine(engine).get_pk_constraint(table_name)['constrained_columns']
+        self.primary_key_columns = reflection.Inspector.from_engine(engine).get_pk_constraint(table_name)[
+            'constrained_columns']
         self.columns = reflection.Inspector.from_engine(engine).get_columns(table_name)
         for idx, val in enumerate(self.columns):
             self.columns[idx]['id'] = idx
@@ -98,7 +99,22 @@ class BaseService(object):
             'columns_list': self.columns_list
         }
         query_dict = self.plugins["operate"].get("HookGlobal",
-                                           lambda x, _: x)(query_dict, op_args)
+                                                 lambda x, _: x)(query_dict, op_args)
+
+        return self.fetch(page=page,
+                          limit=limit,
+                          query_dict=query_dict,
+                          to_type=to_type,
+                          field_info=field_info)
+
+    def fetch(self, page=1,
+              limit=None,
+              query_dict={
+                  "filter": {
+                  }
+              },
+              to_type="dict",
+              field_info=False):
 
         """
         获取分页数据
@@ -163,7 +179,7 @@ class BaseService(object):
         :param to_type:
         :return:
         """
-        #print("mutex-acquire  %s %s  %s  %s  %s" % (os.getpid(), pid, t.ident, t.getName(), self.mutex))
+        # print("mutex-acquire  %s %s  %s  %s  %s" % (os.getpid(), pid, t.ident, t.getName(), self.mutex))
         entities = []
         total = -1
         try:
@@ -174,7 +190,7 @@ class BaseService(object):
                 query = query.offset((page - 1) * limit).limit(limit)
             entities = query.all()
         except Exception as e:
-            #print("db error:", e)
+            # print("db error:", e)
             raise e
 
         to_type = to_type.split('.')
