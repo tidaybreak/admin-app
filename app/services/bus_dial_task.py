@@ -13,7 +13,10 @@ class BusDialtaskService(BaseService):
     def __init__(self):
         super(BusDialtaskService, self).__init__()
 
-    def pages(self, query_dict, page=1, limit=None, field_info=True):
+    def pages(self, query_dict={
+                                "filter": {
+                                }
+                            }, page=1, limit=None, field_info=True):
         data = super().fetch_list(query_dict=query_dict, page=page, limit=limit, to_type="dict", field_info=field_info)
         return data
 
@@ -110,15 +113,15 @@ class BusDialtaskService(BaseService):
         for ent in tels[1]:
             client_info_json['data'].append(
                 {
-                    "姓名": ent[0],
-                    "电话": ent[1],
-                    "地址": ent[2],
-                    "公司名称": ent[3],
-                    "备注": ent[4]
+                    #"姓名": ent[0],
+                    "电话": ent[1]
+                    #"地址": ent[2],
+                    #"公司名称": ent[3],
+                    #"备注": ent[4]
                 }
             )
-
-        data = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'], data['user_name'], client_info_json)
-        time.slppe(5000)
-        fun_dailtask(None, api[0], api[1], api[2])
-        return data
+        #print(client_info_json)
+        result = ciopaaas.addJsonOfAsync(api[0], api[1], api[2], data['source'], data['project_caption'], data['user_name'], client_info_json)
+        time.sleep(8)
+        fun_dailtask(data['__uid__'], api[0], api[1], api[2])
+        return result

@@ -36,6 +36,8 @@ def version():
 
 @view.route("/test")
 def test():
+    dialtask_update()
+    return response_with(resp.SUCCESS_20000, value={"data": {}})
     #return response_with(resp.SUCCESS_20000, value={"data": func_api(fun_dailtask)})
 
     host = 'ai193.ciopaas.com'
